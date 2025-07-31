@@ -3,7 +3,7 @@ import time
 import logging
 import requests
 from zapv2 import ZAPv2
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from zap_manager import ZAPManager
 from auth_manager import AuthenticationManager
 
