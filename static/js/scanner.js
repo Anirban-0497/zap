@@ -307,23 +307,32 @@ class ScanManager {
     }
     
     downloadReport() {
+        console.log('Download report button clicked');
+        
         // First try to get scan ID from current scan status
         fetch('/api/scan_status')
-            .then(response => response.json())
+            .then(response => {
+                console.log('Scan status response received:', response.status);
+                return response.json();
+            })
             .then(data => {
                 console.log('Scan status data:', data); // Debug log
                 if (data.scan_id) {
                     console.log(`Downloading report for scan ID: ${data.scan_id}`); // Debug log
-                    window.location.href = `/download_report/${data.scan_id}`;
+                    this.initiateDownload(data.scan_id);
                 } else {
                     // If no scan_id in status, try to get the latest completed scan
                     console.log('No scan_id in status, trying to get latest completed scan');
                     fetch('/api/latest_scan_id')
-                        .then(response => response.json())
+                        .then(response => {
+                            console.log('Latest scan ID response:', response.status);
+                            return response.json();
+                        })
                         .then(data => {
+                            console.log('Latest scan data:', data);
                             if (data.scan_id) {
                                 console.log(`Downloading report for latest scan ID: ${data.scan_id}`);
-                                window.location.href = `/download_report/${data.scan_id}`;
+                                this.initiateDownload(data.scan_id);
                             } else {
                                 this.showError('No completed scans available for download. Please ensure the scan completed successfully.');
                             }
@@ -337,6 +346,32 @@ class ScanManager {
             .catch(error => {
                 console.error('Error getting scan ID:', error);
                 this.showError('Failed to download report');
+            });
+    }
+    
+    initiateDownload(scanId) {
+        console.log(`Initiating download for scan ID: ${scanId}`);
+        
+        // Create download URL
+        const downloadUrl = `/download_report/${scanId}`;
+        console.log(`Download URL: ${downloadUrl}`);
+        
+        // Try using fetch first to check if the endpoint responds correctly
+        fetch(downloadUrl, { method: 'HEAD' })
+            .then(response => {
+                console.log(`Download endpoint check: ${response.status}`);
+                if (response.ok) {
+                    // Endpoint is working, initiate download
+                    window.location.href = downloadUrl;
+                } else {
+                    this.showError(`Download failed: Server returned ${response.status}`);
+                }
+            })
+            .catch(error => {
+                console.error('Download check failed:', error);
+                // Still try the download as fallback
+                console.log('Attempting download despite check failure');
+                window.location.href = downloadUrl;
             });
     }
     

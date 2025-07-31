@@ -214,13 +214,17 @@ def api_stop_scan():
 def download_report(scan_id):
     """Download PDF report for a completed scan"""
     try:
+        logger.info(f"Download request for scan ID: {scan_id}")
         scan_record = models.ScanRecord.query.get_or_404(scan_id)
+        logger.info(f"Found scan record: {scan_record.target_url}, Status: {scan_record.status}")
         
         if not scan_record.results_json:
+            logger.error(f"No results available for scan {scan_id}")
             flash('No results available for this scan', 'error')
             return redirect(url_for('index'))
         
         # Generate PDF report
+        logger.info(f"Generating PDF report for scan {scan_id}")
         report_gen = ReportGenerator()
         results = json.loads(scan_record.results_json)
         pdf_path = report_gen.generate_pdf_report(results, scan_record.target_url)
@@ -231,11 +235,14 @@ def download_report(scan_id):
             flash('Report file not found', 'error')
             return redirect(url_for('index'))
         
-        logger.info(f"Sending PDF report: {pdf_path}")
+        file_size = os.path.getsize(pdf_path)
+        logger.info(f"Sending PDF report: {pdf_path} ({file_size} bytes)")
         return send_file(pdf_path, as_attachment=True, download_name=f'security_report_{scan_id}.pdf')
         
     except Exception as e:
-        logger.error(f"Error generating report: {str(e)}")
+        logger.error(f"Error generating report for scan {scan_id}: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         flash(f'Error generating report: {str(e)}', 'error')
         return redirect(url_for('index'))
 
@@ -244,6 +251,39 @@ def scan_history():
     """Show scan history"""
     scans = models.ScanRecord.query.order_by(models.ScanRecord.started_at.desc()).limit(20).all()
     return render_template('scan_history.html', scans=scans)
+
+@app.route('/debug_download')
+def debug_download():
+    """Debug endpoint to check download functionality"""
+    try:
+        # Get latest completed scan
+        latest_scan = models.ScanRecord.query.filter_by(status='completed').filter(
+            models.ScanRecord.results_json.isnot(None)
+        ).order_by(models.ScanRecord.completed_at.desc()).first()
+        
+        if not latest_scan:
+            return jsonify({'error': 'No completed scans found'})
+        
+        # Check if report can be generated
+        report_gen = ReportGenerator()
+        results = json.loads(latest_scan.results_json)
+        
+        debug_info = {
+            'latest_scan_id': latest_scan.id,
+            'target_url': latest_scan.target_url,
+            'vulnerability_count': latest_scan.vulnerability_count,
+            'has_results': latest_scan.results_json is not None,
+            'alerts_in_results': len(results.get('alerts', [])),
+            'current_scan_status': scan_status,
+            'download_url': f'/download_report/{latest_scan.id}',
+            'reports_directory_exists': os.path.exists('reports'),
+            'database_path': app.config.get('SQLALCHEMY_DATABASE_URI', 'Not configured')
+        }
+        
+        return jsonify(debug_info)
+        
+    except Exception as e:
+        return jsonify({'error': str(e), 'traceback': str(e.__class__.__name__)})
 
 def run_scan(target_url, scan_id, scan_types):
     """Run the actual security scan in background"""
