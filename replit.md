@@ -8,6 +8,8 @@ This is a Flask-based web application that provides a user-friendly interface fo
 
 - **Migration Completed**: Successfully migrated from Replit Agent to standard Replit environment with full functionality preserved
 - **ZAP Integration**: Confirmed application connects to local ZAP instance on port 8080 as designed
+- **Fixed ZAP Connection**: Resolved os.setsid compatibility issues for connecting to external ZAP instances
+- **Cross-Platform Support**: Updated ZAP manager to work with existing ZAP installations on port 8080
 - **Fixed Critical Bug**: Replaced hardcoded vulnerability generation with real ZAP scan results  
 - **Import Resolution**: Fixed missing urljoin import that was causing scan failures
 - **Real Results**: Application now provides accurate, website-specific security findings instead of static demo data

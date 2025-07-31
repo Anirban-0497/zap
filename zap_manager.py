@@ -17,11 +17,11 @@ class ZAPManager:
         self.zap_host = '127.0.0.1'
         
     def start_zap(self):
-        """Start ZAP daemon"""
+        """Start ZAP daemon or connect to existing instance"""
         try:
-            # Check if ZAP is already running
+            # Check if ZAP is already running (like user's local instance)
             if self.is_zap_running():
-                logger.info("ZAP is already running")
+                logger.info("ZAP is already running on port 8080 - connecting to existing instance")
                 return True
             
             # Try to find ZAP installation
@@ -45,8 +45,7 @@ class ZAPManager:
             self.zap_process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                preexec_fn=os.setsid
+                stderr=subprocess.PIPE
             )
             
             # Wait for ZAP to start
@@ -69,13 +68,14 @@ class ZAPManager:
             if self.zap_process:
                 # Try graceful shutdown first
                 try:
-                    os.killpg(os.getpgid(self.zap_process.pid), signal.SIGTERM)
+                    self.zap_process.terminate()
                     self.zap_process.wait(timeout=10)
-                except (subprocess.TimeoutExpired, ProcessLookupError):
+                except subprocess.TimeoutExpired:
                     # Force kill if graceful shutdown fails
                     try:
-                        os.killpg(os.getpgid(self.zap_process.pid), signal.SIGKILL)
-                    except ProcessLookupError:
+                        self.zap_process.kill()
+                        self.zap_process.wait(timeout=5)
+                    except Exception:
                         pass
                 
                 self.zap_process = None
