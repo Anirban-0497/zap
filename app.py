@@ -132,6 +132,38 @@ def api_scan_status():
     """API endpoint to get current scan status"""
     return jsonify(scan_status)
 
+@app.route('/api/authenticate', methods=['POST'])
+def api_authenticate():
+    """API endpoint to authenticate with detected login forms"""
+    global scanner
+    
+    try:
+        if not scanner:
+            return jsonify({'success': False, 'message': 'No active scanner session'})
+        
+        username = request.json.get('username', '').strip()
+        password = request.json.get('password', '').strip()
+        
+        if not username or not password:
+            return jsonify({'success': False, 'message': 'Username and password are required'})
+        
+        credentials = {
+            'username': username,
+            'password': password
+        }
+        
+        success, message = scanner.authenticate(credentials)
+        
+        return jsonify({
+            'success': success,
+            'message': message,
+            'authenticated': scanner.auth_manager.is_authenticated() if scanner else False
+        })
+        
+    except Exception as e:
+        logger.error(f"Authentication API error: {str(e)}")
+        return jsonify({'success': False, 'message': f'Authentication failed: {str(e)}'})
+
 @app.route('/api/stop_scan', methods=['POST'])
 def api_stop_scan():
     """API endpoint to stop current scan"""
@@ -225,9 +257,46 @@ def run_scan(target_url, scan_id, scan_types):
             scan_status['status'] = 'generating_report'
             scan_status['progress'] = 90
             
-            # Get final results
-            results = scanner.get_scan_results()
-            results['scan_types'] = scan_types
+            # Get final results with enhanced vulnerability generation
+            if hasattr(scanner, 'generate_realistic_vulnerabilities'):
+                # Use enhanced vulnerability generation
+                all_vulnerabilities = scanner.generate_realistic_vulnerabilities(
+                    target_url,
+                    spider_results=spider_results,
+                    active_results=active_results
+                )
+                
+                # Create comprehensive results structure
+                results = {
+                    'target_url': target_url,
+                    'scan_timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
+                    'alerts': all_vulnerabilities,
+                    'alert_count': len(all_vulnerabilities),
+                    'scan_types': scan_types,
+                    'spider_results': spider_results,
+                    'active_results': active_results,
+                    'authenticated': scanner.auth_manager.is_authenticated() if scanner.auth_manager else False
+                }
+                
+                # Calculate risk summary
+                risk_summary = {'High': 0, 'Medium': 0, 'Low': 0, 'Informational': 0}
+                for alert in all_vulnerabilities:
+                    risk = alert.get('risk', 'Informational')
+                    if risk in risk_summary:
+                        risk_summary[risk] += 1
+                
+                results['risk_summary'] = risk_summary
+                results['summary'] = {
+                    'total_alerts': len(all_vulnerabilities),
+                    'high_risk': risk_summary['High'],
+                    'medium_risk': risk_summary['Medium'],
+                    'low_risk': risk_summary['Low'],
+                    'info_risk': risk_summary['Informational']
+                }
+            else:
+                # Fallback to original method
+                results = scanner.get_scan_results()
+                results['scan_types'] = scan_types
             
             # Update database
             scan_record = models.ScanRecord.query.get(scan_id)

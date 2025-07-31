@@ -3,6 +3,7 @@ class ScanManager {
         this.scanStartTime = Date.now();
         this.updateInterval = null;
         this.isCompleted = false;
+        this.authModalShown = false;
         
         this.initializeElements();
         this.startPolling();
@@ -22,6 +23,16 @@ class ScanManager {
         this.viewDetailsBtn = document.getElementById('viewDetailsBtn');
         this.detailedResults = document.getElementById('detailedResults');
         this.vulnerabilityList = document.getElementById('vulnerabilityList');
+        
+        // Authentication elements
+        this.authModal = document.getElementById('authModal');
+        this.authForm = document.getElementById('authForm');
+        this.authenticateBtn = document.getElementById('authenticateBtn');
+        this.authError = document.getElementById('authError');
+        this.authErrorText = document.getElementById('authErrorText');
+        this.authSuccess = document.getElementById('authSuccess');
+        this.authStatusCard = document.getElementById('authStatusCard');
+        this.authenticatedUser = document.getElementById('authenticatedUser');
         
         // Result counters
         this.highRiskCount = document.getElementById('highRiskCount');
@@ -44,6 +55,11 @@ class ScanManager {
         // View details button
         if (this.viewDetailsBtn) {
             this.viewDetailsBtn.addEventListener('click', () => this.toggleDetailedResults());
+        }
+        
+        // Authentication button
+        if (this.authenticateBtn) {
+            this.authenticateBtn.addEventListener('click', () => this.handleAuthentication());
         }
     }
     
@@ -87,6 +103,12 @@ class ScanManager {
             this.showError(scanStatus.error);
             this.isCompleted = true;
             this.stopPolling();
+        }
+        
+        // Handle login form detection during spider phase
+        if (scanStatus.spider_results && scanStatus.spider_results.login_detected && !this.authModalShown) {
+            this.showAuthModal(scanStatus.spider_results.login_forms);
+            this.authModalShown = true;
         }
         
         // Handle completion
@@ -322,6 +344,92 @@ class ScanManager {
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
             this.updateInterval = null;
+        }
+    }
+    
+    showAuthModal(loginForms) {
+        console.log('Login forms detected:', loginForms);
+        if (this.authModal) {
+            // Show the authentication modal using Bootstrap
+            const modal = new bootstrap.Modal(this.authModal);
+            modal.show();
+        }
+    }
+    
+    async handleAuthentication() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        
+        if (!username || !password) {
+            this.showAuthError('Please enter both username and password');
+            return;
+        }
+        
+        // Show loading state
+        this.authenticateBtn.disabled = true;
+        this.authenticateBtn.innerHTML = '<i class="fas fa-spinner fa-pulse me-2"></i>Authenticating...';
+        this.hideAuthMessages();
+        
+        try {
+            const response = await fetch('/api/authenticate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showAuthSuccess();
+                this.showAuthStatusCard(username);
+                
+                // Close modal after 2 seconds
+                setTimeout(() => {
+                    const modal = bootstrap.Modal.getInstance(this.authModal);
+                    if (modal) modal.hide();
+                }, 2000);
+                
+            } else {
+                this.showAuthError(result.message || 'Authentication failed');
+            }
+            
+        } catch (error) {
+            console.error('Authentication error:', error);
+            this.showAuthError('Network error during authentication');
+        } finally {
+            // Reset button state
+            this.authenticateBtn.disabled = false;
+            this.authenticateBtn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Authenticate';
+        }
+    }
+    
+    showAuthError(message) {
+        this.authErrorText.textContent = message;
+        this.authError.style.display = 'block';
+        this.authSuccess.style.display = 'none';
+    }
+    
+    showAuthSuccess() {
+        this.authSuccess.style.display = 'block';
+        this.authError.style.display = 'none';
+    }
+    
+    hideAuthMessages() {
+        this.authError.style.display = 'none';
+        this.authSuccess.style.display = 'none';
+    }
+    
+    showAuthStatusCard(username) {
+        if (this.authenticatedUser) {
+            this.authenticatedUser.textContent = username;
+        }
+        if (this.authStatusCard) {
+            this.authStatusCard.style.display = 'block';
         }
     }
 }

@@ -85,6 +85,82 @@
             </div>
         </div>
 
+        <!-- Authentication Modal -->
+        <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title" id="authModalLabel">
+                            <i class="fas fa-key me-2"></i>Login Forms Detected
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            We detected login forms on this website. Provide credentials to scan protected areas that require authentication.
+                        </div>
+                        <form id="authForm">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="fas fa-user me-2"></i>Username or Email
+                                </label>
+                                <input type="text" class="form-control" id="username" name="username" required 
+                                       placeholder="Enter your username or email">
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Password
+                                </label>
+                                <input type="password" class="form-control" id="password" name="password" required
+                                       placeholder="Enter your password">
+                            </div>
+                            <div class="alert alert-warning small">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                Your credentials are only used for this security scan session and are not stored.
+                            </div>
+                        </form>
+                        <div id="authError" class="alert alert-danger" style="display: none;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span id="authErrorText"></span>
+                        </div>
+                        <div id="authSuccess" class="alert alert-success" style="display: none;">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Authentication successful! The scan will now include protected areas.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Skip Authentication
+                        </button>
+                        <button type="button" class="btn btn-warning" id="authenticateBtn">
+                            <i class="fas fa-sign-in-alt me-2"></i>Authenticate
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authentication Status Card (hidden initially) -->
+        <div class="card shadow-lg mb-4" id="authStatusCard" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-shield-alt me-2"></i>Authentication Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success mb-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Authenticated scanning enabled!</strong> The scan will include protected areas that require login.
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-user me-1"></i>Logged in as: <span id="authenticatedUser"></span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Results Card (hidden initially) -->
         <div class="card shadow-lg" id="resultsCard" style="display: none;">
             <div class="card-header bg-success text-white">

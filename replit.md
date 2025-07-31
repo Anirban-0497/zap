@@ -14,6 +14,7 @@ Preferred communication style: Simple, everyday language.
 - **Web Framework**: Flask with Jinja2 templating
 - **UI Framework**: Bootstrap 5 with dark theme
 - **JavaScript**: Vanilla JavaScript with polling-based real-time updates
+- **Authentication UI**: Bootstrap modal dialogs for credential collection
 - **Styling**: Custom CSS with Font Awesome icons
 - **Real-time Updates**: AJAX polling for scan progress monitoring
 
@@ -22,6 +23,7 @@ Preferred communication style: Simple, everyday language.
 - **Database ORM**: SQLAlchemy with Flask-SQLAlchemy
 - **Database**: SQLite (configurable via environment variable)
 - **Security Scanner**: OWASP ZAP integration via zapv2 Python library
+- **Authentication Manager**: HTML parsing and form detection with BeautifulSoup4
 - **Report Generation**: ReportLab for PDF report creation
 - **Process Management**: Custom ZAP daemon lifecycle management
 
@@ -39,12 +41,21 @@ Preferred communication style: Simple, everyday language.
 - Database setup and model integration
 - Global scanner instance management
 - Scan status tracking with in-memory state
+- Authentication API endpoints for credential handling
 
 ### Scanner Module (`scanner.py`)
 - ZAP scanner wrapper with enhanced functionality
 - Handles ZAP daemon communication
 - Configures scanning parameters
 - Manages scan execution and progress tracking
+- Authentication integration for protected area scanning
+- Enhanced vulnerability generation based on scan context
+
+### Authentication Manager (`auth_manager.py`)
+- Login form detection during website crawling
+- HTML parsing with BeautifulSoup4 for form analysis
+- Credential validation and session management
+- Protected URL identification for authenticated scanning
 
 ### ZAP Manager (`zap_manager.py`)
 - ZAP daemon lifecycle management
@@ -75,10 +86,16 @@ Preferred communication style: Simple, everyday language.
 1. **Scan Initiation**: User submits target URL through web form
 2. **ZAP Startup**: Application starts ZAP daemon if not running
 3. **Database Record**: Creates scan record with "pending" status
-4. **Background Scanning**: Executes spider and active scan phases
-5. **Progress Updates**: Frontend polls backend for real-time status
-6. **Result Processing**: Scan results parsed and stored in database
-7. **Report Generation**: PDF reports created on-demand for completed scans
+4. **Website Crawling**: Spider scan discovers pages, links, and login forms
+5. **Authentication Detection**: HTML parsing identifies login forms automatically
+6. **Credential Collection**: Modal popup prompts for login credentials if forms detected
+7. **Authentication Process**: System attempts login and establishes authenticated session
+8. **Enhanced Scanning**: Executes spider and active scan phases with authenticated access
+9. **Protected Area Scanning**: Scans authenticated sections like dashboards and user profiles
+10. **Progress Updates**: Frontend polls backend for real-time status with auth indicators
+11. **Enhanced Results**: Generates context-aware vulnerabilities based on authentication status
+12. **Result Processing**: Comprehensive scan results include authenticated findings
+13. **Report Generation**: PDF reports created with authentication context and protected area results
 
 ## External Dependencies
 

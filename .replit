@@ -44,3 +44,6 @@ args = "uv add python-owasp-zap-v2.4 requests psutil reportlab"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[agent]
+integrations = ["python_log_in_with_replit==1.0.0", "python_database==1.0.0"]
