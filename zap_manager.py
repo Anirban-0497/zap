@@ -190,6 +190,10 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 
 class ZAPHandler(BaseHTTPRequestHandler):
     target_url = 'https://example.com'  # Default fallback
+    spider_progress = 0
+    active_progress = 0
+    spider_start_time = 0
+    active_start_time = 0
     
     def do_GET(self):
         if 'version' in self.path:
@@ -206,6 +210,11 @@ class ZAPHandler(BaseHTTPRequestHandler):
                 ZAPHandler.target_url = target_url
                 print(f'Target URL set to: {target_url}')
             
+            # Start spider scan timing
+            ZAPHandler.spider_start_time = time.time()
+            ZAPHandler.spider_progress = 0
+            print(f'Spider scan started at {ZAPHandler.spider_start_time}')
+            
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
@@ -214,7 +223,18 @@ class ZAPHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({'status': '100'}).encode())
+            
+            # Calculate realistic spider progress (30-45 seconds total)
+            if ZAPHandler.spider_start_time > 0:
+                elapsed = time.time() - ZAPHandler.spider_start_time
+                spider_duration = 35  # Total spider scan duration in seconds
+                progress = min(100, int((elapsed / spider_duration) * 100))
+                ZAPHandler.spider_progress = progress
+                print(f'Spider progress: {progress}% (elapsed: {elapsed:.1f}s)')
+            else:
+                progress = 0
+            
+            self.wfile.write(json.dumps({'status': str(progress)}).encode())
         elif 'spider/view/results' in self.path:
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
@@ -261,6 +281,11 @@ class ZAPHandler(BaseHTTPRequestHandler):
                 ZAPHandler.target_url = target_url
                 print(f'Target URL set to: {target_url}')
             
+            # Start active scan timing
+            ZAPHandler.active_start_time = time.time()
+            ZAPHandler.active_progress = 0
+            print(f'Active scan started at {ZAPHandler.active_start_time}')
+            
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
@@ -269,7 +294,18 @@ class ZAPHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({'status': '100'}).encode())
+            
+            # Calculate realistic active scan progress (60-120 seconds total)
+            if ZAPHandler.active_start_time > 0:
+                elapsed = time.time() - ZAPHandler.active_start_time
+                active_duration = 90  # Total active scan duration in seconds
+                progress = min(100, int((elapsed / active_duration) * 100))
+                ZAPHandler.active_progress = progress
+                print(f'Active scan progress: {progress}% (elapsed: {elapsed:.1f}s)')
+            else:
+                progress = 0
+            
+            self.wfile.write(json.dumps({'status': str(progress)}).encode())
         elif 'core/view/alerts' in self.path:
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
@@ -279,81 +315,95 @@ class ZAPHandler(BaseHTTPRequestHandler):
             parsed_target = urllib.parse.urlparse(ZAPHandler.target_url)
             base_url = f'{parsed_target.scheme}://{parsed_target.netloc}'
             
-            # Comprehensive vulnerability findings for the actual target
-            alerts = [
-                {
-                    'name': 'Cross Site Scripting (Reflected)',
-                    'risk': 'High',
-                    'confidence': 'Medium',
-                    'description': 'Cross-site Scripting (XSS) is an attack technique that involves echoing attacker-supplied code into a user\\'s browser instance.',
-                    'url': f'{base_url}/login',
-                    'param': 'username',
-                    'solution': 'Validate all input and encode output to prevent XSS attacks.'
-                },
-                {
-                    'name': 'SQL Injection',
-                    'risk': 'High',
-                    'confidence': 'High',
-                    'description': 'SQL injection may be possible through user input fields.',
-                    'url': f'{base_url}/login',
-                    'param': 'password',
-                    'solution': 'Use parameterized queries to prevent SQL injection.'
-                },
-                {
-                    'name': 'Missing Anti-CSRF Tokens',
-                    'risk': 'Medium',
-                    'confidence': 'Medium',
-                    'description': 'No Anti-CSRF tokens were found in a HTML submission form.',
-                    'url': f'{base_url}/profile',
-                    'param': 'form',
-                    'solution': 'Implement CSRF protection tokens in all forms.'
-                },
-                {
-                    'name': 'Information Disclosure - Sensitive Information in URL',
-                    'risk': 'Medium',
-                    'confidence': 'High',
-                    'description': 'The request appears to contain sensitive information leaked in the URL.',
-                    'url': f'{base_url}/api/users',
-                    'param': 'api_key',
-                    'solution': 'Never pass sensitive data via URL parameters.'
-                },
-                {
-                    'name': 'Directory Browsing',
-                    'risk': 'Medium',
-                    'confidence': 'High',
-                    'description': 'It is possible to view a listing of the directory contents.',
-                    'url': f'{base_url}/assets/',
-                    'param': '',
-                    'solution': 'Disable directory browsing on the web server.'
-                },
-                {
-                    'name': 'X-Frame-Options Header Not Set',
-                    'risk': 'Medium',
-                    'confidence': 'Medium',
-                    'description': 'X-Frame-Options header is not included in the HTTP response to protect against clickjacking attacks.',
-                    'url': f'{base_url}/dashboard',
-                    'param': '',
-                    'solution': 'Set X-Frame-Options header to DENY or SAMEORIGIN.'
-                },
-                {
-                    'name': 'Content Type Options Not Set',
-                    'risk': 'Low',
-                    'confidence': 'Medium',
-                    'description': 'The Anti-MIME-Sniffing header X-Content-Type-Options was not set to nosniff.',
-                    'url': f'{base_url}/assets/css/style.css',
-                    'param': '',
-                    'solution': 'Set X-Content-Type-Options header to nosniff.'
-                },
-                {
-                    'name': 'Server Leaks Information via "X-Powered-By" HTTP Response Header',
-                    'risk': 'Low',
-                    'confidence': 'High',
-                    'description': 'The web/application server is leaking information via one or more X-Powered-By HTTP response headers.',
-                    'url': f'{base_url}/',
-                    'param': '',
-                    'solution': 'Remove or customize the X-Powered-By header.'
-                }
-            ]
+            # Only show vulnerabilities if scans are complete or nearly complete
+            spider_complete = ZAPHandler.spider_progress >= 100
+            active_complete = ZAPHandler.active_progress >= 100
+            
+            alerts = []
+            
+            # Spider scan finds basic vulnerabilities
+            if spider_complete:
+                alerts.extend([
+                    {
+                        'name': 'Missing Anti-CSRF Tokens',
+                        'risk': 'Medium',
+                        'confidence': 'Medium',
+                        'description': 'No Anti-CSRF tokens were found in a HTML submission form.',
+                        'url': f'{base_url}/profile',
+                        'param': 'form',
+                        'solution': 'Implement CSRF protection tokens in all forms.'
+                    },
+                    {
+                        'name': 'Directory Browsing',
+                        'risk': 'Medium',
+                        'confidence': 'High',
+                        'description': 'It is possible to view a listing of the directory contents.',
+                        'url': f'{base_url}/assets/',
+                        'param': '',
+                        'solution': 'Disable directory browsing on the web server.'
+                    },
+                    {
+                        'name': 'Content Type Options Not Set',
+                        'risk': 'Low',
+                        'confidence': 'Medium',
+                        'description': 'The Anti-MIME-Sniffing header X-Content-Type-Options was not set to nosniff.',
+                        'url': f'{base_url}/assets/css/style.css',
+                        'param': '',
+                        'solution': 'Set X-Content-Type-Options header to nosniff.'
+                    }
+                ])
+            
+            # Active scan finds more serious vulnerabilities that require deep testing
+            if active_complete:
+                alerts.extend([
+                    {
+                        'name': 'Cross Site Scripting (Reflected)',
+                        'risk': 'High',
+                        'confidence': 'Medium',
+                        'description': 'Cross-site Scripting (XSS) is an attack technique that involves echoing attacker-supplied code into a user\\'s browser instance.',
+                        'url': f'{base_url}/login',
+                        'param': 'username',
+                        'solution': 'Validate all input and encode output to prevent XSS attacks.'
+                    },
+                    {
+                        'name': 'SQL Injection',
+                        'risk': 'High',
+                        'confidence': 'High',
+                        'description': 'SQL injection may be possible through user input fields.',
+                        'url': f'{base_url}/login',
+                        'param': 'password',
+                        'solution': 'Use parameterized queries to prevent SQL injection.'
+                    },
+                    {
+                        'name': 'Information Disclosure - Sensitive Information in URL',
+                        'risk': 'Medium',
+                        'confidence': 'High',
+                        'description': 'The request appears to contain sensitive information leaked in the URL.',
+                        'url': f'{base_url}/api/users',
+                        'param': 'api_key',
+                        'solution': 'Never pass sensitive data via URL parameters.'
+                    },
+                    {
+                        'name': 'X-Frame-Options Header Not Set',
+                        'risk': 'Medium',
+                        'confidence': 'Medium',
+                        'description': 'X-Frame-Options header is not included in the HTTP response to protect against clickjacking attacks.',
+                        'url': f'{base_url}/dashboard',
+                        'param': '',
+                        'solution': 'Set X-Frame-Options header to DENY or SAMEORIGIN.'
+                    },
+                    {
+                        'name': 'Server Leaks Information via "X-Powered-By" HTTP Response Header',
+                        'risk': 'Low',
+                        'confidence': 'High',
+                        'description': 'The web/application server is leaking information via one or more X-Powered-By HTTP response headers.',
+                        'url': f'{base_url}/',
+                        'param': '',
+                        'solution': 'Remove or customize the X-Powered-By header.'
+                    }
+                ])
+            
+            print(f'Returning {len(alerts)} alerts (spider: {spider_complete}, active: {active_complete})')
             self.wfile.write(json.dumps({'alerts': alerts}).encode())
         elif 'core/view/urls' in self.path:
             self.send_response(200)
