@@ -31,7 +31,7 @@ class ZAPScanner:
             max_retries = 30
             for i in range(max_retries):
                 try:
-                    self.zap = ZAPv2(proxies={'http': 'http://127.0.0.1:8080', 'https': 'http://127.0.0.1:8080'})
+                    self.zap = ZAPv2(apikey='72cnks1ojc5359jc7e4g0pt650', proxies={'http': 'http://127.0.0.1:8080', 'https': 'http://127.0.0.1:8080'})
                     # Test connection
                     self.zap.core.version
                     logger.info("ZAP is ready!")

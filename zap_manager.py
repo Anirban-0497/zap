@@ -62,6 +62,7 @@ class ZAPManager:
         try:
             response = requests.get(
                 f'http://{self.zap_host}:{self.zap_port}/JSON/core/view/version/',
+                params={'apikey': '72cnks1ojc5359jc7e4g0pt650'},
                 timeout=5
             )
             return response.status_code == 200
