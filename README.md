@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ZAP Security Scanner - Web Application
 
 A comprehensive Flask-based web application that provides a user-friendly interface for conducting automated security scans using OWASP ZAP (Zed Attack Proxy). The application generates detailed PDF reports with 100+ vulnerability findings per scan.
@@ -225,3 +226,6 @@ For issues and questions:
 - OWASP ZAP team for the excellent security testing platform
 - Flask community for the robust web framework
 - All contributors who help improve this project
+=======
+# ZapSecurity
+>>>>>>> 6668f1f16616fba8ad10f4d05a7c86f38dff653f
