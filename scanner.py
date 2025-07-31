@@ -86,7 +86,10 @@ class ZAPScanner:
             
             # Get spider results
             spider_results = self.zap.spider.results(scan_id)
-            urls_found = len(spider_results)
+            # Handle both list and dict responses from ZAP API
+            if isinstance(spider_results, dict) and 'results' in spider_results:
+                spider_results = spider_results['results']
+            urls_found = len(spider_results) if spider_results else 0
             
             logger.info(f"Spider scan completed. Found {urls_found} URLs")
             
@@ -135,10 +138,23 @@ class ZAPScanner:
         """Get comprehensive scan results including alerts and summary"""
         try:
             # Get all alerts
-            alerts = self.zap.core.alerts()
+            alerts_response = self.zap.core.alerts()
+            # Handle both list and dict responses from ZAP API
+            if isinstance(alerts_response, dict) and 'alerts' in alerts_response:
+                alerts = alerts_response['alerts']
+            elif isinstance(alerts_response, list):
+                alerts = alerts_response
+            else:
+                alerts = []
             
             # Get summary information
-            summary = self.zap.core.urls()
+            summary_response = self.zap.core.urls()
+            if isinstance(summary_response, dict) and 'urls' in summary_response:
+                summary = summary_response['urls']
+            elif isinstance(summary_response, list):
+                summary = summary_response
+            else:
+                summary = []
             
             # Categorize alerts by risk level
             risk_summary = {
@@ -154,7 +170,13 @@ class ZAPScanner:
                     risk_summary[risk] += 1
             
             # Get additional details
-            sites = self.zap.core.sites()
+            sites_response = self.zap.core.sites()
+            if isinstance(sites_response, dict) and 'sites' in sites_response:
+                sites = sites_response['sites']
+            elif isinstance(sites_response, list):
+                sites = sites_response
+            else:
+                sites = []
             
             results = {
                 'target_url': self.target_url,
@@ -186,14 +208,38 @@ class ZAPScanner:
             self.scan_running = False
             if self.zap:
                 # Stop all active scans
-                active_scans = self.zap.ascan.scans()
-                for scan in active_scans:
-                    self.zap.ascan.stop(scan['id'])
+                try:
+                    active_scans_response = self.zap.ascan.scans()
+                    # Handle both list and dict responses
+                    if isinstance(active_scans_response, dict) and 'scans' in active_scans_response:
+                        active_scans = active_scans_response['scans']
+                    elif isinstance(active_scans_response, list):
+                        active_scans = active_scans_response
+                    else:
+                        active_scans = []
+                    
+                    for scan in active_scans:
+                        if isinstance(scan, dict) and 'id' in scan:
+                            self.zap.ascan.stop(scan['id'])
+                except Exception as e:
+                    logger.warning(f"Could not stop active scans: {str(e)}")
                 
                 # Stop all spider scans
-                spider_scans = self.zap.spider.scans()
-                for scan in spider_scans:
-                    self.zap.spider.stop(scan['id'])
+                try:
+                    spider_scans_response = self.zap.spider.scans()
+                    # Handle both list and dict responses
+                    if isinstance(spider_scans_response, dict) and 'scans' in spider_scans_response:
+                        spider_scans = spider_scans_response['scans']
+                    elif isinstance(spider_scans_response, list):
+                        spider_scans = spider_scans_response
+                    else:
+                        spider_scans = []
+                    
+                    for scan in spider_scans:
+                        if isinstance(scan, dict) and 'id' in scan:
+                            self.zap.spider.stop(scan['id'])
+                except Exception as e:
+                    logger.warning(f"Could not stop spider scans: {str(e)}")
                 
                 logger.info("All scans stopped")
         except Exception as e:
