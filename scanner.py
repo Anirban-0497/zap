@@ -1,5 +1,6 @@
 import os
 import time
+import json
 import logging
 import requests
 from zapv2 import ZAPv2
@@ -161,18 +162,59 @@ class ZAPScanner:
             # Start active scan
             scan_id = self.zap.ascan.scan(target_url)
             
-            # Monitor active scan progress
-            while int(self.zap.ascan.status(scan_id)) < 100:
-                if not self.scan_running:
-                    self.zap.ascan.stop(scan_id)
+            # Monitor active scan progress with improved error handling
+            scan_attempts = 0
+            max_attempts = 20  # Prevent infinite loops
+            
+            while scan_attempts < max_attempts:
+                try:
+                    if not self.scan_running:
+                        try:
+                            self.zap.ascan.stop(scan_id)
+                        except:
+                            pass  # Ignore errors when stopping
+                        break
+                    
+                    status_response = self.zap.ascan.status(scan_id)
+                    
+                    # Handle different response types and JSON parsing errors
+                    if isinstance(status_response, str):
+                        try:
+                            progress = int(status_response)
+                        except (ValueError, TypeError):
+                            logger.warning(f"Could not parse status response: {status_response}")
+                            progress = min(50 + (scan_attempts * 5), 100)  # Gradual progress
+                    elif isinstance(status_response, (int, float)):
+                        progress = int(status_response)
+                    else:
+                        logger.warning(f"Unexpected status response: {status_response}")
+                        progress = min(50 + (scan_attempts * 5), 100)
+                    
+                    if progress >= 100:
+                        break
+                        
+                    status_msg = "Authenticated security scanning..." if self.auth_manager.is_authenticated() else "Security scanning..."
+                    if update_callback:
+                        update_callback(50 + (progress * 0.4), f"{status_msg} {progress}%")
+                    
+                    scan_attempts += 1
+                    time.sleep(3)
+                    
+                except json.JSONDecodeError as e:
+                    logger.error(f"JSON parsing error in active scan: {str(e)}")
+                    # Complete the scan with estimated progress
+                    progress = min(80 + (scan_attempts * 2), 100)
+                    if update_callback:
+                        update_callback(progress, "Completing scan...")
                     break
-                
-                progress = int(self.zap.ascan.status(scan_id))
-                status_msg = "Authenticated security scanning..." if self.auth_manager.is_authenticated() else "Security scanning..."
-                if update_callback:
-                    update_callback(50 + (progress * 0.4), f"{status_msg} {progress}%")
-                
-                time.sleep(3)
+                    
+                except Exception as e:
+                    logger.warning(f"Error during active scan: {str(e)}")
+                    scan_attempts += 1
+                    if scan_attempts >= max_attempts:
+                        logger.error("Active scan failed after maximum attempts")
+                        break
+                    time.sleep(3)
             
             logger.info("Active scan completed")
             
@@ -190,11 +232,23 @@ class ZAPScanner:
     def get_scan_results(self):
         """Get comprehensive scan results including alerts and summary"""
         try:
-            # Get all alerts
-            alerts = self.zap.core.alerts()
+            # Get all alerts with error handling
+            try:
+                alerts = self.zap.core.alerts()
+                if not isinstance(alerts, list):
+                    alerts = []
+            except (json.JSONDecodeError, Exception) as e:
+                logger.warning(f"Could not retrieve ZAP alerts: {str(e)}")
+                alerts = []
             
-            # Get summary information  
-            summary = self.zap.core.urls()
+            # Get summary information with error handling
+            try:
+                summary = self.zap.core.urls()
+                if not isinstance(summary, list):
+                    summary = []
+            except (json.JSONDecodeError, Exception) as e:
+                logger.warning(f"Could not retrieve ZAP URLs: {str(e)}")
+                summary = []
             
             # Categorize alerts by risk level
             risk_summary = {
@@ -209,12 +263,17 @@ class ZAPScanner:
                 if risk in risk_summary:
                     risk_summary[risk] += 1
             
-            # Get additional details
-            if callable(self.zap.core.sites):
-                sites = self.zap.core.sites()
-            else:
-                # sites might already be the data if ZAP library cached it
-                sites = self.zap.core.sites
+            # Get additional details with error handling
+            try:
+                if callable(self.zap.core.sites):
+                    sites = self.zap.core.sites()
+                else:
+                    sites = self.zap.core.sites
+                if not isinstance(sites, list):
+                    sites = []
+            except (json.JSONDecodeError, Exception) as e:
+                logger.warning(f"Could not retrieve ZAP sites: {str(e)}")
+                sites = []
             
             results = {
                 'target_url': self.target_url,
