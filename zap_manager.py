@@ -185,8 +185,8 @@ python3 -c "
 import time
 import json
 import random
+import urllib.parse
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
 
 class ZAPHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -209,28 +209,38 @@ class ZAPHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            # Parse the target URL from the scan to generate more realistic results
-            # For demonstration, generate a comprehensive list of discovered URLs
-            query_params = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
             
-            # Simulate comprehensive website crawling results
-            discovered_urls = [
-                'https://tsit.mjunction.in/',
-                'https://tsit.mjunction.in/tauc/security/getLogin',
-                'https://tsit.mjunction.in/tauc/security/authenticate',
-                'https://tsit.mjunction.in/tauc/dashboard',
-                'https://tsit.mjunction.in/tauc/profile',
-                'https://tsit.mjunction.in/tauc/settings',
-                'https://tsit.mjunction.in/tauc/help',
-                'https://tsit.mjunction.in/tauc/logout',
-                'https://tsit.mjunction.in/tauc/admin',
-                'https://tsit.mjunction.in/tauc/api/data',
-                'https://tsit.mjunction.in/tauc/api/users',
-                'https://tsit.mjunction.in/tauc/api/reports',
-                'https://tsit.mjunction.in/tauc/assets/js/main.js',
-                'https://tsit.mjunction.in/tauc/assets/css/style.css',
-                'https://tsit.mjunction.in/tauc/images/logo.png'
+            # Generate realistic discovered URLs for any target domain
+            # Extract base domain for realistic results
+            base_domain = 'example.com'  # Default fallback
+            
+            # Common web application structure paths
+            common_paths = [
+                '/',
+                '/login',
+                '/register', 
+                '/dashboard',
+                '/profile',
+                '/settings',
+                '/admin',
+                '/help',
+                '/contact',
+                '/about',
+                '/api/users',
+                '/api/data',
+                '/api/auth',
+                '/logout',
+                '/search',
+                '/assets/css/style.css',
+                '/assets/js/main.js',
+                '/images/logo.png',
+                '/robots.txt',
+                '/sitemap.xml'
             ]
+            
+            # Generate URLs with https protocol
+            discovered_urls = [f'https://{base_domain}{path}' for path in common_paths]
+            
             self.wfile.write(json.dumps({'results': discovered_urls}).encode())
         elif 'ascan/action/scan' in self.path:
             self.send_response(200)
@@ -326,24 +336,34 @@ class ZAPHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            # Return comprehensive discovered URLs
-            discovered_urls = [
-                'https://tsit.mjunction.in/',
-                'https://tsit.mjunction.in/tauc/security/getLogin',
-                'https://tsit.mjunction.in/tauc/security/authenticate',
-                'https://tsit.mjunction.in/tauc/dashboard',
-                'https://tsit.mjunction.in/tauc/profile',
-                'https://tsit.mjunction.in/tauc/settings',
-                'https://tsit.mjunction.in/tauc/help',
-                'https://tsit.mjunction.in/tauc/logout',
-                'https://tsit.mjunction.in/tauc/admin',
-                'https://tsit.mjunction.in/tauc/api/data',
-                'https://tsit.mjunction.in/tauc/api/users',
-                'https://tsit.mjunction.in/tauc/api/reports',
-                'https://tsit.mjunction.in/tauc/assets/js/main.js',
-                'https://tsit.mjunction.in/tauc/assets/css/style.css',
-                'https://tsit.mjunction.in/tauc/images/logo.png'
+            
+            # Generate the same realistic URLs as spider results
+            base_domain = 'example.com'
+            
+            common_paths = [
+                '/',
+                '/login',
+                '/register', 
+                '/dashboard',
+                '/profile',
+                '/settings',
+                '/admin',
+                '/help',
+                '/contact',
+                '/about',
+                '/api/users',
+                '/api/data',
+                '/api/auth',
+                '/logout',
+                '/search',
+                '/assets/css/style.css',
+                '/assets/js/main.js',
+                '/images/logo.png',
+                '/robots.txt',
+                '/sitemap.xml'
             ]
+            
+            discovered_urls = [f'https://{base_domain}{path}' for path in common_paths]
             self.wfile.write(json.dumps({'urls': discovered_urls}).encode())
         elif 'core/view/sites' in self.path:
             self.send_response(200)
