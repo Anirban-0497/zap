@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Progress - ZAP Security Scanner{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="fas fa-chart-line me-2"></i>Security Scan Progress</h2>
+                <p class="text-muted mb-0" id="targetUrl">Target: {{ scan_status.current_url or 'N/A' }}</p>
+            </div>
+            <div>
+                <button class="btn btn-danger" id="stopScanBtn" style="display: none;">
+                    <i class="fas fa-stop me-2"></i>Stop Scan
+                </button>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+
+        <!-- Progress Card -->
+        <div class="card shadow-lg mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-tasks me-2"></i>Scan Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Progress Bar -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold">Progress</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress" style="height: 20px;">
+                        <div 
+                            class="progress-bar progress-bar-striped progress-bar-animated" 
+                            id="progressBar"
+                            role="progressbar" 
+                            style="width: 0%"
+                            aria-valuenow="0" 
+                            aria-valuemin="0" 
+                            aria-valuemax="100"
+                        ></div>
+                    </div>
+                </div>
+
+                <!-- Status Information -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-info-circle me-2 text-info"></i>
+                            <span class="fw-bold">Status:</span>
+                            <span id="currentStatus" class="ms-2 badge bg-secondary">{{ scan_status.status or 'idle' }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-clock me-2 text-warning"></i>
+                            <span class="fw-bold">Elapsed Time:</span>
+                            <span id="elapsedTime" class="ms-2">00:00:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span id="errorText"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Card (hidden initially) -->
+        <div class="card shadow-lg" id="resultsCard" style="display: none;">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-check-circle me-2"></i>Scan Results
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Summary Stats -->
+                <div class="row mb-4">
+                    <div class="col-md-3 text-center">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body py-2">
+                                <h3 id="highRiskCount" class="mb-0">0</h3>
+                                <small>High Risk</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="card bg-warning text-dark">
+                            <div class="card-body py-2">
+                                <h3 id="mediumRiskCount" class="mb-0">0</h3>
+                                <small>Medium Risk</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="card bg-info text-white">
+                            <div class="card-body py-2">
+                                <h3 id="lowRiskCount" class="mb-0">0</h3>
+                                <small>Low Risk</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="card bg-secondary text-white">
+                            <div class="card-body py-2">
+                                <h3 id="totalAlertsCount" class="mb-0">0</h3>
+                                <small>Total Alerts</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="text-center">
+                    <button class="btn btn-success btn-lg me-3" id="downloadReportBtn" disabled>
+                        <i class="fas fa-download me-2"></i>Download PDF Report
+                    </button>
+                    <button class="btn btn-info" id="viewDetailsBtn">
+                        <i class="fas fa-eye me-2"></i>View Detailed Results
+                    </button>
+                </div>
+
+                <!-- Detailed Results (initially hidden) -->
+                <div id="detailedResults" class="mt-4" style="display: none;">
+                    <h6><i class="fas fa-list me-2"></i>Vulnerability Details</h6>
+                    <div id="vulnerabilityList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/scanner.js') }}"></script>
+{% endblock %}

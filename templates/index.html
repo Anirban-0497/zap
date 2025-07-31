@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}ZAP Security Scanner - Home{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Header -->
+        <div class="text-center mb-5">
+            <i class="fas fa-shield-alt fa-4x text-primary mb-3"></i>
+            <h1 class="display-4 fw-bold">Web Security Scanner</h1>
+            <p class="lead">Comprehensive automated security testing powered by OWASP ZAP</p>
+        </div>
+
+        <!-- Scan Form -->
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-search me-2"></i>Start Security Scan
+                </h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('start_scan') }}" method="POST" id="scanForm">
+                    <div class="mb-4">
+                        <label for="url" class="form-label fw-bold">Target URL</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">
+                                <i class="fas fa-globe"></i>
+                            </span>
+                            <input 
+                                type="url" 
+                                class="form-control" 
+                                id="url" 
+                                name="url" 
+                                placeholder="https://example.com" 
+                                required
+                                pattern="https?://.+"
+                                title="Please enter a valid URL starting with http:// or https://"
+                            >
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Enter the URL you want to scan for security vulnerabilities
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg" id="startScanBtn">
+                            <i class="fas fa-play me-2"></i>Start Security Scan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-spider fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">Automated Crawling</h5>
+                        <p class="card-text">Discovers all pages, links, and forms automatically using ZAP spider technology.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-bug fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Vulnerability Detection</h5>
+                        <p class="card-text">Comprehensive active scanning to identify security vulnerabilities and weaknesses.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-file-pdf fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Professional Reports</h5>
+                        <p class="card-text">Generate detailed PDF reports with findings and recommendations for stakeholders.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="alert alert-warning mt-4" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Important:</strong> Only scan websites you own or have explicit permission to test. 
+            Unauthorized security testing may be illegal and could result in legal consequences.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.getElementById('scanForm').addEventListener('submit', function(e) {
+    const button = document.getElementById('startScanBtn');
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting Scan...';
+});
+</script>
+{% endblock %}
