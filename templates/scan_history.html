@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Scan History - ZAP Security Scanner{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="fas fa-history me-2"></i>Scan History</h2>
+                <p class="text-muted mb-0">View your previous security scans and results</p>
+            </div>
+            <div>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>New Scan
+                </a>
+            </div>
+        </div>
+
+        <!-- Scan History Table -->
+        {% if scans %}
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-table me-2"></i>Recent Scans
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Target URL</th>
+                                <th>Status</th>
+                                <th>Started</th>
+                                <th>Duration</th>
+                                <th>Vulnerabilities</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for scan in scans %}
+                            <tr>
+                                <td>
+                                    <i class="fas fa-globe me-2 text-primary"></i>
+                                    <span class="fw-bold">{{ scan.target_url|truncate(50) }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge {{ scan.status_badge_class }}">
+                                        {{ scan.status|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <i class="fas fa-calendar me-1 text-muted"></i>
+                                    {{ scan.started_at.strftime('%Y-%m-%d %H:%M') }}
+                                </td>
+                                <td>
+                                    {% if scan.duration %}
+                                        <i class="fas fa-clock me-1 text-muted"></i>
+                                        {{ scan.duration }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if scan.vulnerability_count %}
+                                        <span class="badge bg-{{ 'danger' if scan.vulnerability_count > 5 else 'warning' if scan.vulnerability_count > 0 else 'success' }}">
+                                            {{ scan.vulnerability_count }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">0</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if scan.status == 'completed' and scan.results_json %}
+                                        <a href="{{ url_for('download_report', scan_id=scan.id) }}" 
+                                           class="btn btn-sm btn-success me-2" 
+                                           title="Download PDF Report">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    {% endif %}
+                                    
+                                    {% if scan.error_message %}
+                                        <button class="btn btn-sm btn-outline-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#errorModal{{ scan.id }}"
+                                                title="View Error">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </button>
+                                        
+                                        <!-- Error Modal -->
+                                        <div class="modal fade" id="errorModal{{ scan.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title">
+                                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                                            Scan Error
+                                                        </h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p><strong>Target:</strong> {{ scan.target_url }}</p>
+                                                        <p><strong>Error:</strong></p>
+                                                        <pre class="bg-light p-3 rounded">{{ scan.error_message }}</pre>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-search-minus fa-4x text-muted mb-4"></i>
+                <h4 class="text-muted">No Scans Yet</h4>
+                <p class="text-muted mb-4">You haven't performed any security scans yet. Start your first scan to see results here.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Start Your First Scan
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Statistics Cards -->
+        {% if scans %}
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                        <h4>{{ scans|length }}</h4>
+                        <small>Total Scans</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-check-circle fa-2x mb-2"></i>
+                        <h4>{{ scans|selectattr('status', 'equalto', 'completed')|list|length }}</h4>
+                        <small>Completed</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <i class="fas fa-times-circle fa-2x mb-2"></i>
+                        <h4>{{ scans|selectattr('status', 'equalto', 'failed')|list|length }}</h4>
+                        <small>Failed</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body text-center">
+                        <i class="fas fa-bug fa-2x mb-2"></i>
+                        <h4>{{ scans|sum(attribute='vulnerability_count') or 0 }}</h4>
+                        <small>Total Vulnerabilities</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

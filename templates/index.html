@@ -44,6 +44,36 @@
                         </div>
                     </div>
 
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Scan Types</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check form-check-lg">
+                                    <input class="form-check-input" type="checkbox" id="spider_scan" name="scan_types" value="spider" checked>
+                                    <label class="form-check-label" for="spider_scan">
+                                        <i class="fas fa-spider me-2 text-info"></i>
+                                        <strong>Spider Scan</strong>
+                                        <small class="d-block text-muted">Crawl and discover all pages, links, and forms</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-check-lg">
+                                    <input class="form-check-input" type="checkbox" id="active_scan" name="scan_types" value="active" checked>
+                                    <label class="form-check-label" for="active_scan">
+                                        <i class="fas fa-bug me-2 text-warning"></i>
+                                        <strong>Active Scan</strong>
+                                        <small class="d-block text-muted">Test for security vulnerabilities</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Select at least one scan type. Spider scan is recommended before active scan.
+                        </div>
+                    </div>
+
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary btn-lg" id="startScanBtn">
                             <i class="fas fa-play me-2"></i>Start Security Scan
@@ -97,9 +127,37 @@
 {% block extra_scripts %}
 <script>
 document.getElementById('scanForm').addEventListener('submit', function(e) {
+    // Check if at least one scan type is selected
+    const checkboxes = document.querySelectorAll('input[name="scan_types"]:checked');
+    if (checkboxes.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one scan type.');
+        return false;
+    }
+    
     const button = document.getElementById('startScanBtn');
     button.disabled = true;
     button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Starting Scan...';
+});
+
+// Add visual feedback for checkbox selection
+document.querySelectorAll('input[name="scan_types"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const label = this.closest('.form-check');
+        if (this.checked) {
+            label.classList.add('border', 'border-primary', 'rounded', 'p-2');
+        } else {
+            label.classList.remove('border', 'border-primary', 'rounded', 'p-2');
+        }
+    });
+});
+
+// Initialize checkbox styling on page load
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input[name="scan_types"]:checked').forEach(checkbox => {
+        const label = checkbox.closest('.form-check');
+        label.classList.add('border', 'border-primary', 'rounded', 'p-2');
+    });
 });
 </script>
 {% endblock %}

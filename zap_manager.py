@@ -184,7 +184,9 @@ echo "Dummy ZAP started (for testing only)"
 python3 -c "
 import time
 import json
+import random
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse, parse_qs
 
 class ZAPHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -193,11 +195,84 @@ class ZAPHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({'version': '2.14.0-dummy'}).encode())
+        elif 'spider/action/scan' in self.path:
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'scan': '1'}).encode())
+        elif 'spider/view/status' in self.path:
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'status': '100'}).encode())
+        elif 'spider/view/results' in self.path:
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            urls = ['http://example.com/', 'http://example.com/about', 'http://example.com/contact']
+            self.wfile.write(json.dumps({'results': urls}).encode())
+        elif 'ascan/action/scan' in self.path:
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'scan': '1'}).encode())
+        elif 'ascan/view/status' in self.path:
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'status': '100'}).encode())
+        elif 'core/view/alerts' in self.path:
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            # Sample vulnerability data
+            alerts = [
+                {
+                    'name': 'Cross Site Scripting (Reflected)',
+                    'risk': 'High',
+                    'confidence': 'Medium',
+                    'description': 'Cross-site Scripting (XSS) is an attack technique that involves echoing attacker-supplied code into a user\\'s browser instance.',
+                    'url': 'http://example.com/search',
+                    'param': 'q',
+                    'solution': 'Validate all input and encode output to prevent XSS attacks.'
+                },
+                {
+                    'name': 'SQL Injection',
+                    'risk': 'High',
+                    'confidence': 'High',
+                    'description': 'SQL injection may be possible.',
+                    'url': 'http://example.com/login',
+                    'param': 'username',
+                    'solution': 'Use parameterized queries to prevent SQL injection.'
+                }
+            ]
+            self.wfile.write(json.dumps({'alerts': alerts}).encode())
+        elif 'core/view/urls' in self.path:
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            urls = ['http://example.com/', 'http://example.com/about', 'http://example.com/contact']
+            self.wfile.write(json.dumps({'urls': urls}).encode())
+        elif 'core/view/sites' in self.path:
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'sites': ['http://example.com']}).encode())
+        elif 'ascan/view/scans' in self.path:
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'scans': []}).encode())
+        elif 'spider/view/scans' in self.path:
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'scans': []}).encode())
         else:
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({'result': 'dummy'}).encode())
+            self.wfile.write(json.dumps({'result': 'OK'}).encode())
     
     def log_message(self, format, *args):
         pass

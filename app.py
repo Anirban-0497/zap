@@ -65,8 +65,14 @@ def start_scan():
     global scanner, scan_status
     
     target_url = request.form.get('url', '').strip()
+    scan_types = request.form.getlist('scan_types')
+    
     if not target_url:
         flash('Please enter a valid URL', 'error')
+        return redirect(url_for('index'))
+    
+    if not scan_types:
+        flash('Please select at least one scan type', 'error')
         return redirect(url_for('index'))
     
     # Validate URL format
@@ -98,12 +104,13 @@ def start_scan():
             'status': 'initializing',
             'current_url': target_url,
             'scan_id': scan_record.id,
+            'scan_types': scan_types,
             'results': None,
             'error': None
         })
         
         # Start scan in background thread
-        scan_thread = threading.Thread(target=run_scan, args=(target_url, scan_record.id))
+        scan_thread = threading.Thread(target=run_scan, args=(target_url, scan_record.id, scan_types))
         scan_thread.daemon = True
         scan_thread.start()
         
@@ -182,72 +189,86 @@ def scan_history():
     scans = models.ScanRecord.query.order_by(models.ScanRecord.started_at.desc()).limit(20).all()
     return render_template('scan_history.html', scans=scans)
 
-def run_scan(target_url, scan_id):
+def run_scan(target_url, scan_id, scan_types):
     """Run the actual security scan in background"""
     global scanner, scan_status
     
     try:
-        # Update status
-        scan_status['status'] = 'starting_zap'
-        scan_status['progress'] = 5
-        
-        # Start ZAP and perform scan
-        scanner.start_zap()
-        
-        scan_status['status'] = 'crawling'
-        scan_status['progress'] = 10
-        
-        # Spider scan (crawling)
-        spider_results = scanner.spider_scan(target_url, update_callback=update_scan_progress)
-        
-        scan_status['status'] = 'active_scanning'
-        scan_status['progress'] = 50
-        
-        # Active scan (vulnerability detection)
-        active_results = scanner.active_scan(target_url, update_callback=update_scan_progress)
-        
-        scan_status['status'] = 'generating_report'
-        scan_status['progress'] = 90
-        
-        # Get final results
-        results = scanner.get_scan_results()
-        
-        # Update database
-        scan_record = models.ScanRecord.query.get(scan_id)
-        if scan_record:
-            scan_record.status = 'completed'
-            scan_record.completed_at = datetime.utcnow()
-            scan_record.results_json = json.dumps(results)
-            scan_record.vulnerability_count = len(results.get('alerts', []))
-            db.session.commit()
-        
-        # Update final status
-        scan_status.update({
-            'running': False,
-            'progress': 100,
-            'status': 'completed',
-            'results': results
-        })
-        
-        logger.info(f"Scan completed successfully for {target_url}")
+        with app.app_context():
+            # Update status
+            scan_status['status'] = 'starting_zap'
+            scan_status['progress'] = 5
+            
+            # Start ZAP and perform scan
+            scanner.start_zap()
+            
+            spider_results = None
+            active_results = None
+            current_progress = 10
+            
+            # Spider scan (crawling) - if selected
+            if 'spider' in scan_types:
+                scan_status['status'] = 'crawling'
+                scan_status['progress'] = current_progress
+                
+                spider_results = scanner.spider_scan(target_url, update_callback=update_scan_progress)
+                current_progress = 50 if 'active' in scan_types else 85
+            
+            # Active scan (vulnerability detection) - if selected
+            if 'active' in scan_types:
+                scan_status['status'] = 'active_scanning'
+                scan_status['progress'] = current_progress
+                
+                active_results = scanner.active_scan(target_url, update_callback=update_scan_progress)
+                current_progress = 85
+            
+            scan_status['status'] = 'generating_report'
+            scan_status['progress'] = 90
+            
+            # Get final results
+            results = scanner.get_scan_results()
+            results['scan_types'] = scan_types
+            
+            # Update database
+            scan_record = models.ScanRecord.query.get(scan_id)
+            if scan_record:
+                scan_record.status = 'completed'
+                scan_record.completed_at = datetime.utcnow()
+                scan_record.results_json = json.dumps(results)
+                scan_record.vulnerability_count = len(results.get('alerts', []))
+                db.session.commit()
+            
+            # Update final status
+            scan_status.update({
+                'running': False,
+                'progress': 100,
+                'status': 'completed',
+                'results': results
+            })
+            
+            logger.info(f"Scan completed successfully for {target_url} with types: {scan_types}")
         
     except Exception as e:
         logger.error(f"Scan failed: {str(e)}")
         
-        # Update error status
-        scan_status.update({
-            'running': False,
-            'status': 'error',
-            'error': str(e)
-        })
-        
-        # Update database
-        scan_record = models.ScanRecord.query.get(scan_id)
-        if scan_record:
-            scan_record.status = 'failed'
-            scan_record.completed_at = datetime.utcnow()
-            scan_record.error_message = str(e)
-            db.session.commit()
+        try:
+            with app.app_context():
+                # Update error status
+                scan_status.update({
+                    'running': False,
+                    'status': 'error',
+                    'error': str(e)
+                })
+                
+                # Update database
+                scan_record = models.ScanRecord.query.get(scan_id)
+                if scan_record:
+                    scan_record.status = 'failed'
+                    scan_record.completed_at = datetime.utcnow()
+                    scan_record.error_message = str(e)
+                    db.session.commit()
+        except Exception as db_error:
+            logger.error(f"Failed to update database after scan error: {str(db_error)}")
     
     finally:
         # Clean up
