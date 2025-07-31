@@ -137,11 +137,15 @@ class ZAPScanner:
     def get_scan_results(self):
         """Get comprehensive scan results including alerts and summary"""
         try:
-            # Get all alerts - ZAP library handles response parsing
+            # Get all alerts - debug the response
+            logger.info("Getting alerts from ZAP...")
             alerts = self.zap.core.alerts()
+            logger.info(f"Alerts response type: {type(alerts)}, content: {alerts}")
             
             # Get summary information
+            logger.info("Getting URLs from ZAP...")
             summary = self.zap.core.urls()
+            logger.info(f"URLs response type: {type(summary)}, content: {summary}")
             
             # Categorize alerts by risk level
             risk_summary = {
@@ -157,7 +161,9 @@ class ZAPScanner:
                     risk_summary[risk] += 1
             
             # Get additional details
+            logger.info("Getting sites from ZAP...")
             sites = self.zap.core.sites()
+            logger.info(f"Sites response type: {type(sites)}, content: {sites}")
             
             results = {
                 'target_url': self.target_url,
@@ -181,6 +187,8 @@ class ZAPScanner:
             
         except Exception as e:
             logger.error(f"Failed to get scan results: {str(e)}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             raise
     
     def stop_scan(self):
