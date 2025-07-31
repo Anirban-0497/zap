@@ -225,7 +225,7 @@ class ZAPHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            # Sample vulnerability data
+            # Sample vulnerability data - return as array directly (ZAP format)
             alerts = [
                 {
                     'name': 'Cross Site Scripting (Reflected)',
@@ -246,28 +246,28 @@ class ZAPHandler(BaseHTTPRequestHandler):
                     'solution': 'Use parameterized queries to prevent SQL injection.'
                 }
             ]
-            self.wfile.write(json.dumps({'alerts': alerts}).encode())
+            self.wfile.write(json.dumps(alerts).encode())
         elif 'core/view/urls' in self.path:
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             urls = ['http://example.com/', 'http://example.com/about', 'http://example.com/contact']
-            self.wfile.write(json.dumps({'urls': urls}).encode())
+            self.wfile.write(json.dumps(urls).encode())
         elif 'core/view/sites' in self.path:
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({'sites': ['http://example.com']}).encode())
+            self.wfile.write(json.dumps(['http://example.com']).encode())
         elif 'ascan/view/scans' in self.path:
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({'scans': []}).encode())
+            self.wfile.write(json.dumps([]).encode())
         elif 'spider/view/scans' in self.path:
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({'scans': []}).encode())
+            self.wfile.write(json.dumps([]).encode())
         else:
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
