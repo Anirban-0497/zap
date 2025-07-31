@@ -307,24 +307,22 @@ class ScanManager {
     }
     
     downloadReport() {
-        if (!this.scanResults || !this.scanResults.scan_id) {
-            // Try to get scan ID from current scan status
-            fetch('/api/scan_status')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.scan_id) {
-                        window.location.href = `/download_report/${data.scan_id}`;
-                    } else {
-                        this.showError('No scan ID available for report download');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error getting scan ID:', error);
-                    this.showError('Failed to download report');
-                });
-        } else {
-            window.location.href = `/download_report/${this.scanResults.scan_id}`;
-        }
+        // Always get scan ID from current scan status to ensure we have the latest
+        fetch('/api/scan_status')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Scan status data:', data); // Debug log
+                if (data.scan_id) {
+                    console.log(`Downloading report for scan ID: ${data.scan_id}`); // Debug log
+                    window.location.href = `/download_report/${data.scan_id}`;
+                } else {
+                    this.showError('No scan ID available for report download');
+                }
+            })
+            .catch(error => {
+                console.error('Error getting scan ID:', error);
+                this.showError('Failed to download report');
+            });
     }
     
     showError(message, type = 'danger') {
