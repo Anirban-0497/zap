@@ -307,7 +307,7 @@ class ScanManager {
     }
     
     downloadReport() {
-        // Always get scan ID from current scan status to ensure we have the latest
+        // First try to get scan ID from current scan status
         fetch('/api/scan_status')
             .then(response => response.json())
             .then(data => {
@@ -316,7 +316,22 @@ class ScanManager {
                     console.log(`Downloading report for scan ID: ${data.scan_id}`); // Debug log
                     window.location.href = `/download_report/${data.scan_id}`;
                 } else {
-                    this.showError('No scan ID available for report download');
+                    // If no scan_id in status, try to get the latest completed scan
+                    console.log('No scan_id in status, trying to get latest completed scan');
+                    fetch('/api/latest_scan_id')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.scan_id) {
+                                console.log(`Downloading report for latest scan ID: ${data.scan_id}`);
+                                window.location.href = `/download_report/${data.scan_id}`;
+                            } else {
+                                this.showError('No completed scans available for download. Please ensure the scan completed successfully.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error getting latest scan ID:', error);
+                            this.showError('Failed to get scan information. Please try running a new scan.');
+                        });
                 }
             })
             .catch(error => {

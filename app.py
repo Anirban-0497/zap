@@ -133,6 +133,22 @@ def api_scan_status():
     """API endpoint to get current scan status"""
     return jsonify(scan_status)
 
+@app.route('/api/latest_scan_id')
+def api_latest_scan_id():
+    """API endpoint to get the latest completed scan ID"""
+    try:
+        latest_scan = models.ScanRecord.query.filter_by(status='completed').filter(
+            models.ScanRecord.results_json.isnot(None)
+        ).order_by(models.ScanRecord.completed_at.desc()).first()
+        
+        if latest_scan:
+            return jsonify({'scan_id': latest_scan.id, 'target_url': latest_scan.target_url})
+        else:
+            return jsonify({'scan_id': None, 'message': 'No completed scans found'})
+    except Exception as e:
+        logger.error(f"Error getting latest scan ID: {str(e)}")
+        return jsonify({'scan_id': None, 'error': str(e)})
+
 @app.route('/api/authenticate', methods=['POST'])
 def api_authenticate():
     """API endpoint to authenticate with detected login forms"""
