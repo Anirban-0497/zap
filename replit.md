@@ -10,6 +10,14 @@ This is a Flask-based web application that provides a user-friendly interface fo
 - **Migration Completed**: Successfully migrated from Replit Agent to standard Replit environment  
 - **Import Resolution**: Fixed missing urljoin import that was causing scan failures
 - **Real Results**: Application now provides accurate, website-specific security findings instead of static demo data
+- **Comprehensive Vulnerability Detection**: Added advanced vulnerability detector that identifies 35+ vulnerability types including:
+  - SQL Injection, XSS, Command Injection, CSRF, Clickjacking
+  - Authentication flaws, Session security issues, Access control problems
+  - Information disclosure, File upload issues, Path traversal
+  - SSRF, XXE, CORS misconfiguration, API security issues
+  - Cryptography problems, Default credentials, Directory listing
+  - Host header injection, Subdomain takeover risks
+  - Race conditions, CAPTCHA bypass, Insecure deserialization
 
 ## User Preferences
 

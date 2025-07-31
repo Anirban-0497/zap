@@ -36,6 +36,7 @@ db.init_app(app)
 # Import modules after app creation to avoid circular imports
 from scanner import ZAPScanner
 from report_generator import ReportGenerator
+from vulnerability_detector import ComprehensiveVulnerabilityDetector
 
 # Global scanner instance
 scanner = None
@@ -257,12 +258,46 @@ def run_scan(target_url, scan_id, scan_types):
             scan_status['status'] = 'generating_report'
             scan_status['progress'] = 90
             
-            # Get actual ZAP scan results instead of hardcoded vulnerabilities
-            results = scanner.get_scan_results()
-            results['scan_types'] = scan_types
-            results['spider_results'] = spider_results
-            results['active_results'] = active_results
-            results['authenticated'] = scanner.auth_manager.is_authenticated() if scanner.auth_manager else False
+            # Get ZAP scan results
+            zap_results = scanner.get_scan_results()
+            
+            # Run comprehensive vulnerability detection
+            vuln_detector = ComprehensiveVulnerabilityDetector()
+            comprehensive_vulns = vuln_detector.scan_target(target_url, spider_results.get('urls', []) if spider_results else [target_url])
+            
+            # Combine ZAP and comprehensive scan results
+            all_vulnerabilities = zap_results.get('alerts', []) + comprehensive_vulns
+            
+            # Create comprehensive results structure
+            results = {
+                'target_url': target_url,
+                'scan_timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
+                'alerts': all_vulnerabilities,
+                'alert_count': len(all_vulnerabilities),
+                'scan_types': scan_types,
+                'spider_results': spider_results,
+                'active_results': active_results,
+                'authenticated': scanner.auth_manager.is_authenticated() if scanner.auth_manager else False,
+                'zap_alerts': len(zap_results.get('alerts', [])),
+                'comprehensive_alerts': len(comprehensive_vulns)
+            }
+            
+            # Calculate risk summary
+            risk_summary = {'High': 0, 'Medium': 0, 'Low': 0, 'Informational': 0}
+            for alert in all_vulnerabilities:
+                risk = alert.get('risk', 'Informational')
+                if risk in risk_summary:
+                    risk_summary[risk] += 1
+            
+            results['risk_summary'] = risk_summary
+            results['summary'] = {
+                'total_alerts': len(all_vulnerabilities),
+                'high_risk': risk_summary['High'],
+                'medium_risk': risk_summary['Medium'],
+                'low_risk': risk_summary['Low'],
+                'info_risk': risk_summary['Informational'],
+                'urls_scanned': len(spider_results.get('urls', [])) if spider_results else 1
+            }
             
             # Update database
             scan_record = models.ScanRecord.query.get(scan_id)
