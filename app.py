@@ -261,9 +261,25 @@ def run_scan(target_url, scan_id, scan_types):
             # Get ZAP scan results
             zap_results = scanner.get_scan_results()
             
-            # Run comprehensive vulnerability detection
-            vuln_detector = ComprehensiveVulnerabilityDetector()
-            comprehensive_vulns = vuln_detector.scan_target(target_url, spider_results.get('urls', []) if spider_results else [target_url])
+            # Run comprehensive vulnerability detection with timeout protection
+            try:
+                vuln_detector = ComprehensiveVulnerabilityDetector()
+                comprehensive_vulns = vuln_detector.scan_target(target_url, spider_results.get('urls', []) if spider_results else [target_url])
+                logger.info(f"Comprehensive vulnerability detection completed: {len(comprehensive_vulns)} vulnerabilities found")
+            except Exception as e:
+                logger.error(f"Comprehensive vulnerability detection failed: {str(e)}")
+                comprehensive_vulns = [
+                    {
+                        'name': 'Vulnerability Detection Error',
+                        'risk': 'Informational',
+                        'confidence': 'High',
+                        'description': f'The comprehensive vulnerability detector encountered an error: {str(e)}. Basic ZAP scan results are still available.',
+                        'solution': 'This is an informational message about the scan process.',
+                        'url': target_url,
+                        'param': '',
+                        'evidence': ''
+                    }
+                ]
             
             # Combine ZAP and comprehensive scan results
             all_vulnerabilities = zap_results.get('alerts', []) + comprehensive_vulns
