@@ -18,6 +18,11 @@ This is a Flask-based web application that provides a user-friendly interface fo
   - Cryptography problems, Default credentials, Directory listing
   - Host header injection, Subdomain takeover risks
   - Race conditions, CAPTCHA bypass, Insecure deserialization
+- **Performance Optimization**: Fixed report generation timeouts by optimizing vulnerability detection:
+  - Reduced request timeout from 10 seconds to 3 seconds
+  - Limited scan scope to 5 URLs maximum to prevent hanging
+  - Prioritized single-request security checks over network-intensive scans
+  - Added graceful error handling to prevent scan failures
 
 ## User Preferences
 
