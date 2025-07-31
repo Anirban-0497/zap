@@ -23,43 +23,13 @@ class ZAPManager:
             if self.is_zap_running():
                 logger.info("ZAP is already running on port 8080 - connecting to existing instance")
                 return True
-            
-            # Try to find ZAP installation
-            zap_path = self.find_zap_installation()
-            if not zap_path:
-                raise Exception("OWASP ZAP not found. Please install ZAP or set ZAP_PATH environment variable")
-            
-            # Start ZAP in daemon mode
-            cmd = [
-                zap_path,
-                '-daemon',
-                '-port', str(self.zap_port),
-                '-host', self.zap_host,
-                '-config', 'api.disablekey=true',
-                '-config', 'spider.maxDuration=10',
-                '-config', 'ascan.maxDuration=20'
-            ]
-            
-            logger.info(f"Starting ZAP with command: {' '.join(cmd)}")
-            
-            self.zap_process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
-            
-            # Wait for ZAP to start
-            max_retries = 30
-            for i in range(max_retries):
-                if self.is_zap_running():
-                    logger.info("ZAP daemon started successfully")
-                    return True
-                time.sleep(2)
-            
-            raise Exception("ZAP failed to start within timeout period")
+            else:
+                # If ZAP is not running, inform user to start it manually
+                logger.error("ZAP is not running on port 8080. Please start your local ZAP instance first.")
+                raise Exception("ZAP is not running on port 8080. Please start your local ZAP instance and try again.")
             
         except Exception as e:
-            logger.error(f"Failed to start ZAP: {str(e)}")
+            logger.error(f"Failed to connect to ZAP: {str(e)}")
             raise
     
     def stop_zap(self):
