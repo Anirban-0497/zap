@@ -4,6 +4,13 @@
 
 This is a Flask-based web application that provides a user-friendly interface for conducting automated security scans using OWASP ZAP (Zed Attack Proxy). The application allows users to scan web applications for security vulnerabilities and generates comprehensive PDF reports of the findings.
 
+## Recent Changes (July 31, 2025)
+
+- **Fixed Critical Bug**: Replaced hardcoded vulnerability generation with real ZAP scan results
+- **Migration Completed**: Successfully migrated from Replit Agent to standard Replit environment  
+- **Import Resolution**: Fixed missing urljoin import that was causing scan failures
+- **Real Results**: Application now provides accurate, website-specific security findings instead of static demo data
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
