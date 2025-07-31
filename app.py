@@ -209,6 +209,13 @@ def download_report(scan_id):
         results = json.loads(scan_record.results_json)
         pdf_path = report_gen.generate_pdf_report(results, scan_record.target_url)
         
+        # Verify file exists before sending
+        if not os.path.exists(pdf_path):
+            logger.error(f"PDF file not found: {pdf_path}")
+            flash('Report file not found', 'error')
+            return redirect(url_for('index'))
+        
+        logger.info(f"Sending PDF report: {pdf_path}")
         return send_file(pdf_path, as_attachment=True, download_name=f'security_report_{scan_id}.pdf')
         
     except Exception as e:

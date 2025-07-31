@@ -115,8 +115,13 @@ class ReportGenerator:
             # Build PDF
             doc.build(content)
             
-            logger.info(f"PDF report generated: {filepath}")
-            return filepath
+            # Verify file was created successfully
+            if os.path.exists(filepath):
+                file_size = os.path.getsize(filepath)
+                logger.info(f"PDF report generated successfully: {filepath} ({file_size} bytes)")
+                return filepath
+            else:
+                raise Exception(f"PDF file was not created at {filepath}")
             
         except Exception as e:
             logger.error(f"Failed to generate PDF report: {str(e)}")
