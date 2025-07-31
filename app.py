@@ -336,7 +336,8 @@ def run_scan(target_url, scan_id, scan_types):
                 'running': False,
                 'progress': 100,
                 'status': 'completed',
-                'results': results
+                'results': results,
+                'scan_id': scan_id  # Keep scan_id so download button works
             })
             
             logger.info(f"Scan completed successfully for {target_url} with types: {scan_types}")
@@ -350,7 +351,8 @@ def run_scan(target_url, scan_id, scan_types):
                 scan_status.update({
                     'running': False,
                     'status': 'error',
-                    'error': str(e)
+                    'error': str(e),
+                    'scan_id': scan_id  # Keep scan_id even on error for potential partial results
                 })
                 
                 # Update database
