@@ -162,7 +162,11 @@ class ZAPScanner:
             
             # Get additional details
             logger.info("Getting sites from ZAP...")
-            sites = self.zap.core.sites()
+            if callable(self.zap.core.sites):
+                sites = self.zap.core.sites()
+            else:
+                # sites might already be the data if ZAP library cached it
+                sites = self.zap.core.sites
             logger.info(f"Sites response type: {type(sites)}, content: {sites}")
             
             results = {
@@ -198,7 +202,11 @@ class ZAPScanner:
             if self.zap:
                 # Stop all active scans
                 try:
-                    active_scans = self.zap.ascan.scans()
+                    if callable(self.zap.ascan.scans):
+                        active_scans = self.zap.ascan.scans()
+                    else:
+                        active_scans = self.zap.ascan.scans
+                    
                     for scan in active_scans:
                         if isinstance(scan, dict) and 'id' in scan:
                             self.zap.ascan.stop(scan['id'])
@@ -207,7 +215,11 @@ class ZAPScanner:
                 
                 # Stop all spider scans
                 try:
-                    spider_scans = self.zap.spider.scans()
+                    if callable(self.zap.spider.scans):
+                        spider_scans = self.zap.spider.scans()
+                    else:
+                        spider_scans = self.zap.spider.scans
+                    
                     for scan in spider_scans:
                         if isinstance(scan, dict) and 'id' in scan:
                             self.zap.spider.stop(scan['id'])
