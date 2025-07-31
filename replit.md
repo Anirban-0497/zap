@@ -18,6 +18,7 @@ This is a Flask-based web application that provides a user-friendly interface fo
 - **PDF Download Issue Resolved**: Fixed JavaScript download functionality by preserving scan_id in scan status after completion
 - **Enhanced Download Debugging**: Added comprehensive logging and fallback mechanisms for robust PDF download functionality
 - **Cross-Environment Compatibility**: Improved download system to work seamlessly across local and cloud environments
+- **Local Machine Debugging**: Added comprehensive debugging tools and diagnostics for troubleshooting database connectivity issues
 - **Enhanced Vulnerability Volume**: Expanded detection to generate 100+ vulnerabilities per scan to match professional ZAP installations:
   - Path traversal, Remote file inclusion, Source code disclosure (Git/SVN)
   - Session management issues, Authentication bypasses, CSRF vulnerabilities
