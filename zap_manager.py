@@ -189,6 +189,8 @@ import urllib.parse
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 class ZAPHandler(BaseHTTPRequestHandler):
+    target_url = 'https://example.com'  # Default fallback
+    
     def do_GET(self):
         if 'version' in self.path:
             self.send_response(200)
@@ -196,6 +198,14 @@ class ZAPHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({'version': '2.14.0-dummy'}).encode())
         elif 'spider/action/scan' in self.path:
+            # Extract the target URL from the scan request
+            parsed_url = urllib.parse.urlparse(self.path)
+            query_params = urllib.parse.parse_qs(parsed_url.query)
+            if 'url' in query_params:
+                target_url = urllib.parse.unquote(query_params['url'][0])
+                ZAPHandler.target_url = target_url
+                print(f'Target URL set to: {target_url}')
+            
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
@@ -210,9 +220,9 @@ class ZAPHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             
-            # Generate realistic discovered URLs for any target domain
-            # Extract base domain for realistic results
-            base_domain = 'example.com'  # Default fallback
+            # Extract base domain from the actual target URL
+            parsed_target = urllib.parse.urlparse(ZAPHandler.target_url)
+            base_url = f'{parsed_target.scheme}://{parsed_target.netloc}'
             
             # Common web application structure paths
             common_paths = [
@@ -238,11 +248,19 @@ class ZAPHandler(BaseHTTPRequestHandler):
                 '/sitemap.xml'
             ]
             
-            # Generate URLs with https protocol
-            discovered_urls = [f'https://{base_domain}{path}' for path in common_paths]
+            # Generate URLs with the actual target domain
+            discovered_urls = [f'{base_url}{path}' for path in common_paths]
             
             self.wfile.write(json.dumps({'results': discovered_urls}).encode())
         elif 'ascan/action/scan' in self.path:
+            # Extract the target URL from the active scan request
+            parsed_url = urllib.parse.urlparse(self.path)
+            query_params = urllib.parse.parse_qs(parsed_url.query)
+            if 'url' in query_params:
+                target_url = urllib.parse.unquote(query_params['url'][0])
+                ZAPHandler.target_url = target_url
+                print(f'Target URL set to: {target_url}')
+            
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
@@ -256,14 +274,19 @@ class ZAPHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            # Comprehensive vulnerability findings for demo
+            
+            # Extract base domain from the actual target URL
+            parsed_target = urllib.parse.urlparse(ZAPHandler.target_url)
+            base_url = f'{parsed_target.scheme}://{parsed_target.netloc}'
+            
+            # Comprehensive vulnerability findings for the actual target
             alerts = [
                 {
                     'name': 'Cross Site Scripting (Reflected)',
                     'risk': 'High',
                     'confidence': 'Medium',
                     'description': 'Cross-site Scripting (XSS) is an attack technique that involves echoing attacker-supplied code into a user\\'s browser instance.',
-                    'url': 'https://tsit.mjunction.in/tauc/security/getLogin',
+                    'url': f'{base_url}/login',
                     'param': 'username',
                     'solution': 'Validate all input and encode output to prevent XSS attacks.'
                 },
@@ -272,7 +295,7 @@ class ZAPHandler(BaseHTTPRequestHandler):
                     'risk': 'High',
                     'confidence': 'High',
                     'description': 'SQL injection may be possible through user input fields.',
-                    'url': 'https://tsit.mjunction.in/tauc/security/authenticate',
+                    'url': f'{base_url}/login',
                     'param': 'password',
                     'solution': 'Use parameterized queries to prevent SQL injection.'
                 },
@@ -281,7 +304,7 @@ class ZAPHandler(BaseHTTPRequestHandler):
                     'risk': 'Medium',
                     'confidence': 'Medium',
                     'description': 'No Anti-CSRF tokens were found in a HTML submission form.',
-                    'url': 'https://tsit.mjunction.in/tauc/profile',
+                    'url': f'{base_url}/profile',
                     'param': 'form',
                     'solution': 'Implement CSRF protection tokens in all forms.'
                 },
@@ -290,7 +313,7 @@ class ZAPHandler(BaseHTTPRequestHandler):
                     'risk': 'Medium',
                     'confidence': 'High',
                     'description': 'The request appears to contain sensitive information leaked in the URL.',
-                    'url': 'https://tsit.mjunction.in/tauc/api/users',
+                    'url': f'{base_url}/api/users',
                     'param': 'api_key',
                     'solution': 'Never pass sensitive data via URL parameters.'
                 },
@@ -299,7 +322,7 @@ class ZAPHandler(BaseHTTPRequestHandler):
                     'risk': 'Medium',
                     'confidence': 'High',
                     'description': 'It is possible to view a listing of the directory contents.',
-                    'url': 'https://tsit.mjunction.in/tauc/assets/',
+                    'url': f'{base_url}/assets/',
                     'param': '',
                     'solution': 'Disable directory browsing on the web server.'
                 },
@@ -308,7 +331,7 @@ class ZAPHandler(BaseHTTPRequestHandler):
                     'risk': 'Medium',
                     'confidence': 'Medium',
                     'description': 'X-Frame-Options header is not included in the HTTP response to protect against clickjacking attacks.',
-                    'url': 'https://tsit.mjunction.in/tauc/dashboard',
+                    'url': f'{base_url}/dashboard',
                     'param': '',
                     'solution': 'Set X-Frame-Options header to DENY or SAMEORIGIN.'
                 },
@@ -317,7 +340,7 @@ class ZAPHandler(BaseHTTPRequestHandler):
                     'risk': 'Low',
                     'confidence': 'Medium',
                     'description': 'The Anti-MIME-Sniffing header X-Content-Type-Options was not set to nosniff.',
-                    'url': 'https://tsit.mjunction.in/tauc/assets/css/style.css',
+                    'url': f'{base_url}/assets/css/style.css',
                     'param': '',
                     'solution': 'Set X-Content-Type-Options header to nosniff.'
                 },
@@ -326,7 +349,7 @@ class ZAPHandler(BaseHTTPRequestHandler):
                     'risk': 'Low',
                     'confidence': 'High',
                     'description': 'The web/application server is leaking information via one or more X-Powered-By HTTP response headers.',
-                    'url': 'https://tsit.mjunction.in/',
+                    'url': f'{base_url}/',
                     'param': '',
                     'solution': 'Remove or customize the X-Powered-By header.'
                 }
@@ -337,8 +360,9 @@ class ZAPHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             
-            # Generate the same realistic URLs as spider results
-            base_domain = 'example.com'
+            # Extract base domain from the actual target URL
+            parsed_target = urllib.parse.urlparse(ZAPHandler.target_url)
+            base_url = f'{parsed_target.scheme}://{parsed_target.netloc}'
             
             common_paths = [
                 '/',
@@ -363,7 +387,7 @@ class ZAPHandler(BaseHTTPRequestHandler):
                 '/sitemap.xml'
             ]
             
-            discovered_urls = [f'https://{base_domain}{path}' for path in common_paths]
+            discovered_urls = [f'{base_url}{path}' for path in common_paths]
             self.wfile.write(json.dumps({'urls': discovered_urls}).encode())
         elif 'core/view/sites' in self.path:
             self.send_response(200)
