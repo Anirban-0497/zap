@@ -3,122 +3,155 @@
 {% block title %}ZAP Security Scanner - Home{% endblock %}
 
 {% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="hero-content text-center">
+            <div class="mb-4">
+                <i class="fas fa-shield-alt" style="font-size: 5rem; opacity: 0.9;"></i>
+            </div>
+            <h1 class="display-3 fw-bold mb-3">Advanced Web Security Scanner</h1>
+            <p class="lead fs-4 mb-4">Professional security testing powered by OWASP ZAP</p>
+            <div class="d-flex justify-content-center gap-4 text-center">
+                <div>
+                    <div class="fs-2 fw-bold">100+</div>
+                    <small>Vulnerability Types</small>
+                </div>
+                <div>
+                    <div class="fs-2 fw-bold">Real-time</div>
+                    <small>Scanning Progress</small>
+                </div>
+                <div>
+                    <div class="fs-2 fw-bold">PDF</div>
+                    <small>Professional Reports</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row justify-content-center">
     <div class="col-lg-8">
-        <!-- Header -->
-        <div class="text-center mb-5">
-            <i class="fas fa-shield-alt fa-4x text-primary mb-3"></i>
-            <h1 class="display-4 fw-bold">Web Security Scanner</h1>
-            <p class="lead">Comprehensive automated security testing powered by OWASP ZAP</p>
-        </div>
-
         <!-- Scan Form -->
-        <div class="card shadow-lg">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-search me-2"></i>Start Security Scan
-                </h5>
+        <div class="form-modern">
+            <div class="text-center mb-4">
+                <h3 class="fw-bold text-dark mb-2">
+                    <i class="fas fa-search me-2 text-primary"></i>Start Security Scan
+                </h3>
+                <p class="text-muted">Enter your target URL and configure scan settings</p>
             </div>
-            <div class="card-body">
-                <form action="{{ url_for('start_scan') }}" method="POST" id="scanForm">
-                    <div class="mb-4">
-                        <label for="url" class="form-label fw-bold">Target URL</label>
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text">
-                                <i class="fas fa-globe"></i>
-                            </span>
-                            <input 
-                                type="url" 
-                                class="form-control" 
-                                id="url" 
-                                name="url" 
-                                placeholder="https://example.com" 
-                                required
-                                pattern="https?://.+"
-                                title="Please enter a valid URL starting with http:// or https://"
-                            >
-                        </div>
-                        <div class="form-text">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Enter the URL you want to scan for security vulnerabilities
-                        </div>
+            
+            <form action="{{ url_for('start_scan') }}" method="POST" id="scanForm">
+                <div class="mb-4">
+                    <label for="url" class="form-label fw-bold text-dark">Target URL</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-primary text-white border-0">
+                            <i class="fas fa-globe"></i>
+                        </span>
+                        <input 
+                            type="url" 
+                            class="form-control form-control-modern" 
+                            id="url" 
+                            name="url" 
+                            placeholder="https://example.com" 
+                            required
+                            pattern="https?://.+"
+                            title="Please enter a valid URL starting with http:// or https://"
+                        >
                     </div>
+                    <div class="form-text text-muted mt-2">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Enter the URL you want to scan for security vulnerabilities
+                    </div>
+                </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Scan Types</label>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-check form-check-lg">
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-dark">Scan Configuration</label>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card glass-card p-3 h-100 scan-option">
+                                <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="spider_scan" name="scan_types" value="spider" checked>
-                                    <label class="form-check-label" for="spider_scan">
-                                        <i class="fas fa-spider me-2 text-info"></i>
-                                        <strong>Spider Scan</strong>
-                                        <small class="d-block text-muted">Crawl and discover all pages, links, and forms</small>
+                                    <label class="form-check-label w-100" for="spider_scan">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-spider fa-2x text-info me-3"></i>
+                                            <div>
+                                                <strong class="text-dark">Spider Scan</strong>
+                                                <div class="small text-muted">Discovery & Crawling</div>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">Automatically discovers all pages, links, forms, and endpoints</small>
                                     </label>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-check-lg">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card glass-card p-3 h-100 scan-option">
+                                <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="active_scan" name="scan_types" value="active" checked>
-                                    <label class="form-check-label" for="active_scan">
-                                        <i class="fas fa-bug me-2 text-warning"></i>
-                                        <strong>Active Scan</strong>
-                                        <small class="d-block text-muted">Test for security vulnerabilities</small>
+                                    <label class="form-check-label w-100" for="active_scan">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fas fa-bug fa-2x text-warning me-3"></i>
+                                            <div>
+                                                <strong class="text-dark">Active Scan</strong>
+                                                <div class="small text-muted">Vulnerability Testing</div>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">Tests for security vulnerabilities and weaknesses</small>
                                     </label>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-text">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Select at least one scan type. Spider scan is recommended before active scan.
-                        </div>
                     </div>
+                    <div class="form-text text-muted mt-3">
+                        <i class="fas fa-lightbulb me-1"></i>
+                        Spider scan is recommended before active scanning for comprehensive coverage
+                    </div>
+                </div>
 
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg" id="startScanBtn">
-                            <i class="fas fa-play me-2"></i>Start Security Scan
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-gradient-primary btn-lg" id="startScanBtn">
+                        <i class="fas fa-rocket me-2"></i>Launch Security Scan
+                    </button>
+                </div>
+            </form>
         </div>
 
         <!-- Features Section -->
-        <div class="row mt-5">
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-spider fa-3x text-info mb-3"></i>
-                        <h5 class="card-title">Automated Crawling</h5>
-                        <p class="card-text">Discovers all pages, links, and forms automatically using ZAP spider technology.</p>
-                    </div>
+        <div class="row mt-5 g-4">
+            <div class="col-md-4">
+                <div class="metric-card">
+                    <i class="fas fa-spider fa-3x text-info mb-3"></i>
+                    <h5 class="fw-bold text-dark">Smart Discovery</h5>
+                    <p class="text-muted mb-0">Advanced crawling technology that discovers hidden endpoints, forms, and attack surfaces automatically</p>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-bug fa-3x text-warning mb-3"></i>
-                        <h5 class="card-title">Vulnerability Detection</h5>
-                        <p class="card-text">Comprehensive active scanning to identify security vulnerabilities and weaknesses.</p>
-                    </div>
+            <div class="col-md-4">
+                <div class="metric-card">
+                    <i class="fas fa-shield-virus fa-3x text-danger mb-3"></i>
+                    <h5 class="fw-bold text-dark">Advanced Detection</h5>
+                    <p class="text-muted mb-0">Identifies 100+ vulnerability types including OWASP Top 10, authentication flaws, and zero-days</p>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-file-pdf fa-3x text-success mb-3"></i>
-                        <h5 class="card-title">Professional Reports</h5>
-                        <p class="card-text">Generate detailed PDF reports with findings and recommendations for stakeholders.</p>
-                    </div>
+            <div class="col-md-4">
+                <div class="metric-card">
+                    <i class="fas fa-file-contract fa-3x text-success mb-3"></i>
+                    <h5 class="fw-bold text-dark">Executive Reports</h5>
+                    <p class="text-muted mb-0">Professional PDF reports with risk analysis, remediation guidance, and compliance mapping</p>
                 </div>
             </div>
         </div>
 
         <!-- Security Notice -->
-        <div class="alert alert-warning mt-4" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <strong>Important:</strong> Only scan websites you own or have explicit permission to test. 
-            Unauthorized security testing may be illegal and could result in legal consequences.
+        <div class="glass-card mt-5 p-4">
+            <div class="text-center">
+                <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                <h6 class="fw-bold text-dark mb-2">Authorized Testing Only</h6>
+                <p class="text-muted mb-0">
+                    Only scan websites you own or have explicit written permission to test. 
+                    Unauthorized security testing may violate laws and terms of service.
+                </p>
+            </div>
         </div>
     </div>
 </div>
