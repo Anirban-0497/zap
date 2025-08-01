@@ -222,8 +222,7 @@ def download_report(scan_id):
         
         if not scan_record.results_json:
             logger.error(f"No results available for scan {scan_id}")
-            flash('No results available for this scan', 'error')
-            return redirect(url_for('index'))
+            return jsonify({'error': 'No results available for this scan'}), 400
         
         # Generate PDF report
         logger.info(f"Generating PDF report for scan {scan_id}")
@@ -234,19 +233,23 @@ def download_report(scan_id):
         # Verify file exists before sending
         if not os.path.exists(pdf_path):
             logger.error(f"PDF file not found: {pdf_path}")
-            flash('Report file not found', 'error')
-            return redirect(url_for('index'))
+            return jsonify({'error': 'Report file not found'}), 404
         
         file_size = os.path.getsize(pdf_path)
         logger.info(f"Sending PDF report: {pdf_path} ({file_size} bytes)")
-        return send_file(pdf_path, as_attachment=True, download_name=f'security_report_{scan_id}.pdf')
+        
+        return send_file(
+            pdf_path, 
+            as_attachment=True, 
+            download_name=f'security_report_{scan_id}.pdf',
+            mimetype='application/pdf'
+        )
         
     except Exception as e:
         logger.error(f"Error generating report for scan {scan_id}: {str(e)}")
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
-        flash(f'Error generating report: {str(e)}', 'error')
-        return redirect(url_for('index'))
+        return jsonify({'error': f'Error generating report: {str(e)}'}), 500
 
 @app.route('/scan_history')
 def scan_history():
@@ -270,6 +273,16 @@ def debug_download():
         report_gen = ReportGenerator()
         results = json.loads(latest_scan.results_json)
         
+        # Try to generate the PDF and check for errors
+        try:
+            pdf_path = report_gen.generate_pdf_report(results, latest_scan.target_url)
+            pdf_exists = os.path.exists(pdf_path)
+            file_size = os.path.getsize(pdf_path) if pdf_exists else 0
+        except Exception as pdf_error:
+            pdf_path = f"Error generating PDF: {str(pdf_error)}"
+            pdf_exists = False
+            file_size = 0
+        
         debug_info = {
             'latest_scan_id': latest_scan.id,
             'target_url': latest_scan.target_url,
@@ -279,13 +292,35 @@ def debug_download():
             'current_scan_status': scan_status,
             'download_url': f'/download_report/{latest_scan.id}',
             'reports_directory_exists': os.path.exists('reports'),
-            'database_path': app.config.get('SQLALCHEMY_DATABASE_URI', 'Not configured')
+            'database_path': app.config.get('SQLALCHEMY_DATABASE_URI', 'Not configured'),
+            'pdf_generation_test': pdf_path,
+            'pdf_exists': pdf_exists,
+            'pdf_file_size': file_size,
+            'reports_files': os.listdir('reports') if os.path.exists('reports') else []
         }
         
         return jsonify(debug_info)
         
     except Exception as e:
         return jsonify({'error': str(e), 'traceback': str(e.__class__.__name__)})
+
+@app.route('/test_download')
+def test_download():
+    """Simple test endpoint to download the latest report directly"""
+    try:
+        # Get latest completed scan
+        latest_scan = models.ScanRecord.query.filter_by(status='completed').filter(
+            models.ScanRecord.results_json.isnot(None)
+        ).order_by(models.ScanRecord.completed_at.desc()).first()
+        
+        if not latest_scan:
+            return jsonify({'error': 'No completed scans found'})
+        
+        # Direct redirect to download
+        return redirect(url_for('download_report', scan_id=latest_scan.id))
+        
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 def run_scan(target_url, scan_id, scan_types):
     """Run the actual security scan in background"""
