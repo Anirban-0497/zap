@@ -4,10 +4,10 @@ import os
 # Update these values to match your local PostgreSQL setup
 POSTGRES_CONFIG = {
     'host': 'localhost',
-    'port': '8081',
-    'database': 'zap_scanner',  # Change this if needed
-    'username': 'postgres',     # Change this to your username
-    'password': 'postgres'      # Change this to your actual password
+    'port': '5432',  # Standard PostgreSQL port (8081 connection was refused)
+    'database': 'zap_scanner',
+    'username': 'postgres',
+    'password': 'Arindam@0497'
 }
 
 # Set the DATABASE_URL environment variable
