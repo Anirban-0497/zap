@@ -20,7 +20,7 @@ db = SQLAlchemy(model_class=Base)
 
 # Create the app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
+app.secret_key = os.environ.get("SESSION_SECRET")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Configure the database
@@ -159,8 +159,9 @@ def api_authenticate():
         if not scanner:
             return jsonify({'success': False, 'message': 'No active scanner session'})
         
-        username = request.json.get('username', '').strip()
-        password = request.json.get('password', '').strip()
+        data = request.get_json() or {}
+        username = data.get('username', '').strip()
+        password = data.get('password', '').strip()
         
         if not username or not password:
             return jsonify({'success': False, 'message': 'Username and password are required'})
@@ -296,6 +297,10 @@ def run_scan(target_url, scan_id, scan_types):
             scan_status['status'] = 'starting_zap'
             scan_status['progress'] = 5
             
+            # Ensure scanner is initialized
+            if scanner is None:
+                scanner = ZAPScanner()
+            
             # Start ZAP and perform scan
             scanner.start_zap()
             
@@ -357,7 +362,7 @@ def run_scan(target_url, scan_id, scan_types):
                 'scan_types': scan_types,
                 'spider_results': spider_results,
                 'active_results': active_results,
-                'authenticated': scanner.auth_manager.is_authenticated() if scanner.auth_manager else False,
+                'authenticated': scanner.auth_manager.is_authenticated() if scanner and scanner.auth_manager else False,
                 'zap_alerts': len(zap_results.get('alerts', [])),
                 'comprehensive_alerts': len(comprehensive_vulns)
             }
