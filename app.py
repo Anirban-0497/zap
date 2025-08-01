@@ -52,9 +52,36 @@ scan_status = {
 }
 
 with app.app_context():
-    # Import models here so their tables are created
-    import models
-    db.create_all()
+    try:
+        # Import models here so their tables are created
+        import models
+        
+        # Create all tables
+        db.create_all()
+        print("✓ Database tables created successfully")
+        
+    except Exception as e:
+        print(f"✗ Database initialization error: {e}")
+        # Try to create the instance directory if it doesn't exist
+        import os
+        from pathlib import Path
+        
+        if 'sqlite' in str(app.config.get('SQLALCHEMY_DATABASE_URI', '')):
+            # Extract path from SQLite URL and ensure directory exists
+            db_url = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+            if 'sqlite:///' in db_url:
+                db_path = db_url.replace('sqlite:///', '')
+                db_dir = Path(db_path).parent
+                db_dir.mkdir(parents=True, exist_ok=True)
+                print(f"✓ Created database directory: {db_dir}")
+                
+                # Try again
+                try:
+                    db.create_all()
+                    print("✓ Database tables created successfully on retry")
+                except Exception as retry_error:
+                    print(f"✗ Database creation failed on retry: {retry_error}")
+                    raise
 
 @app.route('/')
 def index():
