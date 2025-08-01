@@ -1,0 +1,229 @@
+Microsoft Windows [Version 10.0.26100.4770]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Users\anirb\Downloads\zap (2)\zap>C:\Users\anirb>python test_postgres_connection.py
+'C:\Users\anirb' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\anirb\Downloads\zap (2)\zap>python: can't open file 'C:\Users\anirb\test_postgres_connection.py': [Errno 2] No such file or directory
+'python:' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\anirb\Downloads\zap (2)\zap>python test_postgres_connection.py
+Traceback (most recent call last):
+  File "C:\Users\anirb\Downloads\zap (2)\zap\test_postgres_connection.py", line 6, in <module>
+    import psycopg2
+ModuleNotFoundError: No module named 'psycopg2'
+
+C:\Users\anirb\Downloads\zap (2)\zap>python test_postgres_connection.py
+Testing PostgreSQL connection...
+✓ Connected successfully!
+✓ PostgreSQL version: PostgreSQL 17.5 on x86_64-windows, compiled by msvc-19.44.35209, 64-bit
+✓ Available databases: ['postgres']
+
+C:\Users\anirb\Downloads\zap (2)\zap>python create_database.py
+ZAP Scanner - Database Creation
+===================================
+Connecting to PostgreSQL...
+✓ Database 'zap_scanner' created successfully
+✓ Database setup completed!
+You can now run: python main.py
+
+C:\Users\anirb\Downloads\zap (2)\zap>python main.py
+Local PostgreSQL configured: localhost:8081
+Database: zap_scanner
+Using local PostgreSQL configuration
+Database: localhost:8081
+✗ Database connection failed: (psycopg2.OperationalError) could not translate host name "0497@localhost" to address: A non-recoverable error occurred during a database lookup.
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+Falling back to SQLite...
+Traceback (most recent call last):
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 143, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 3295, in raw_connection
+    return self.pool.connect()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 447, in connect
+    return _ConnectionFairy._checkout(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 1264, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 711, in checkout
+    rec = pool._do_get()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\impl.py", line 178, in _do_get
+    self._dec_overflow()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\impl.py", line 175, in _do_get
+    return self._create_connection()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 388, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 673, in __init__
+    self.__connect()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    pool.logger.debug("Error on connect(): %s", e)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 895, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\default.py", line 626, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\psycopg2\__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: could not translate host name "0497@localhost" to address: A non-recoverable error occurred during a database lookup.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\anirb\Downloads\zap (2)\zap\main.py", line 17, in <module>
+    from app import app
+  File "C:\Users\anirb\Downloads\zap (2)\zap\app.py", line 57, in <module>
+    db.create_all()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\flask_sqlalchemy\extension.py", line 900, in create_all
+    self._call_for_binds(bind_key, "create_all")
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\flask_sqlalchemy\extension.py", line 881, in _call_for_binds
+    getattr(metadata, op_name)(bind=engine)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 3245, in _run_ddl_visitor
+    with self.begin() as conn:
+  File "C:\Program Files\Python39\lib\contextlib.py", line 119, in __enter__
+    return next(self.gen)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 3235, in begin
+    with self.connect() as conn:
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 3271, in connect
+    return self._connection_cls(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 145, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 2434, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 143, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 3295, in raw_connection
+    return self.pool.connect()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 447, in connect
+    return _ConnectionFairy._checkout(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 1264, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 711, in checkout
+    rec = pool._do_get()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\impl.py", line 178, in _do_get
+    self._dec_overflow()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\impl.py", line 175, in _do_get
+    return self._create_connection()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 388, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 673, in __init__
+    self.__connect()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    pool.logger.debug("Error on connect(): %s", e)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 895, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\default.py", line 626, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\psycopg2\__init__.py", line 122, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) could not translate host name "0497@localhost" to address: A non-recoverable error occurred during a database lookup.
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 143, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 3295, in raw_connection
+    return self.pool.connect()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 447, in connect
+    return _ConnectionFairy._checkout(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 1264, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 711, in checkout
+    rec = pool._do_get()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\impl.py", line 178, in _do_get
+    self._dec_overflow()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\impl.py", line 175, in _do_get
+    return self._create_connection()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 388, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 673, in __init__
+    self.__connect()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    pool.logger.debug("Error on connect(): %s", e)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 895, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\default.py", line 626, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+sqlite3.OperationalError: unable to open database file
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\anirb\Downloads\zap (2)\zap\main.py", line 28, in <module>
+    from app import app
+  File "C:\Users\anirb\Downloads\zap (2)\zap\app.py", line 57, in <module>
+    db.create_all()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\flask_sqlalchemy\extension.py", line 900, in create_all
+    self._call_for_binds(bind_key, "create_all")
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\flask_sqlalchemy\extension.py", line 881, in _call_for_binds
+    getattr(metadata, op_name)(bind=engine)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\sql\schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 3245, in _run_ddl_visitor
+    with self.begin() as conn:
+  File "C:\Program Files\Python39\lib\contextlib.py", line 119, in __enter__
+    return next(self.gen)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 3235, in begin
+    with self.connect() as conn:
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 3271, in connect
+    return self._connection_cls(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 145, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 2434, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 143, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\base.py", line 3295, in raw_connection
+    return self.pool.connect()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 447, in connect
+    return _ConnectionFairy._checkout(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 1264, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 711, in checkout
+    rec = pool._do_get()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\impl.py", line 178, in _do_get
+    self._dec_overflow()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\impl.py", line 175, in _do_get
+    return self._create_connection()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 388, in _create_connection
+    return _ConnectionRecord(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 673, in __init__
+    self.__connect()
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    pool.logger.debug("Error on connect(): %s", e)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\pool\base.py", line 895, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\create.py", line 646, in connect
+    return dialect.connect(*cargs, **cparams)
+  File "C:\Users\anirb\AppData\Roaming\Python\Python39\site-packages\sqlalchemy\engine\default.py", line 626, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unable to open database file
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
