@@ -4,9 +4,9 @@ import os
 # Update these values to match your local PostgreSQL setup
 POSTGRES_CONFIG = {
     'host': 'localhost',
-    'port': '5432',  # Standard PostgreSQL port (8081 connection was refused)
+    'port': '8081',  # Your PostgreSQL is running on port 8081
     'database': 'zap_scanner',
-    'username': 'postgres',
+    'username': 'postgres',  # As shown in your pgAdmin
     'password': 'Arindam@0497'
 }
 

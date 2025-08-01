@@ -8,7 +8,7 @@ from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 # PostgreSQL connection details
 HOST = 'localhost'
-PORT = '5432'  # Standard PostgreSQL port
+PORT = '8081'  # Your PostgreSQL port
 ADMIN_USER = 'postgres'
 ADMIN_PASSWORD = 'Arindam@0497'
 DATABASE_NAME = 'zap_scanner'
