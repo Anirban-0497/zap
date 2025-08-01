@@ -51,11 +51,11 @@ scan_status = {
     'error': None
 }
 
+# Import models first (outside app context to avoid scope issues)
+import models
+
 with app.app_context():
     try:
-        # Import models here so their tables are created
-        import models
-        
         # Create all tables
         db.create_all()
         print("✓ Database tables created successfully")
@@ -159,7 +159,39 @@ def scan_progress():
 @app.route('/api/scan_status')
 def api_scan_status():
     """API endpoint to get current scan status"""
-    return jsonify(scan_status)
+    global scan_status
+    
+    try:
+        # Ensure scan_status has all required fields
+        status_response = {
+            'running': scan_status.get('running', False),
+            'progress': scan_status.get('progress', 0),
+            'status': scan_status.get('status', 'idle'),
+            'current_url': scan_status.get('current_url', ''),
+            'scan_id': scan_status.get('scan_id'),
+            'error': scan_status.get('error'),
+            'results': scan_status.get('results'),
+            'scan_types': scan_status.get('scan_types', [])
+        }
+        
+        # Add spider results if available for authentication modal
+        if 'spider_results' in scan_status:
+            status_response['spider_results'] = scan_status['spider_results']
+        
+        return jsonify(status_response)
+        
+    except Exception as e:
+        logger.error(f"Error in scan status API: {str(e)}")
+        return jsonify({
+            'running': False,
+            'progress': 0,
+            'status': 'error',
+            'error': f'Status API error: {str(e)}',
+            'current_url': '',
+            'scan_id': None,
+            'results': None,
+            'scan_types': []
+        })
 
 @app.route('/api/latest_scan_id')
 def api_latest_scan_id():

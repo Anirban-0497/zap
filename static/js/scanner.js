@@ -78,13 +78,31 @@ class ScanManager {
     async fetchScanStatus() {
         try {
             const response = await fetch('/api/scan_status');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const data = await response.json();
+            
+            // Clear any previous connection errors
+            this.hideError();
             
             this.updateUI(data);
             
         } catch (error) {
             console.error('Error fetching scan status:', error);
-            this.showError('Failed to fetch scan status');
+            
+            // Only show error if it's persistent (after multiple failures)
+            if (!this.connectionErrorCount) {
+                this.connectionErrorCount = 0;
+            }
+            
+            this.connectionErrorCount++;
+            
+            if (this.connectionErrorCount >= 3) {
+                this.showError(`Connection failed: ${error.message}. Check if the server is running.`);
+            }
         }
     }
     
@@ -421,6 +439,14 @@ class ScanManager {
                 this.errorMessage.style.display = 'none';
             }, 5000);
         }
+    }
+    
+    hideError() {
+        if (this.errorMessage) {
+            this.errorMessage.style.display = 'none';
+        }
+        // Reset connection error count on successful connection
+        this.connectionErrorCount = 0;
     }
     
     stopPolling() {
