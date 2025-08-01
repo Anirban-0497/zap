@@ -309,6 +309,12 @@ class ScanManager {
     downloadReport() {
         console.log('Download report button clicked');
         
+        // Show loading state on download button
+        if (this.downloadReportBtn) {
+            this.downloadReportBtn.disabled = true;
+            this.downloadReportBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Preparing Download...';
+        }
+        
         // First try to get scan ID from current scan status
         fetch('/api/scan_status')
             .then(response => {
@@ -334,18 +340,22 @@ class ScanManager {
                                 console.log(`Downloading report for latest scan ID: ${data.scan_id}`);
                                 this.initiateDownload(data.scan_id);
                             } else {
+                                console.error('No completed scans found');
                                 this.showError('No completed scans available for download. Please ensure the scan completed successfully.');
+                                this.resetDownloadButton();
                             }
                         })
                         .catch(error => {
                             console.error('Error getting latest scan ID:', error);
                             this.showError('Failed to get scan information. Please try running a new scan.');
+                            this.resetDownloadButton();
                         });
                 }
             })
             .catch(error => {
                 console.error('Error getting scan ID:', error);
                 this.showError('Failed to download report');
+                this.resetDownloadButton();
             });
     }
     
@@ -356,22 +366,47 @@ class ScanManager {
         const downloadUrl = `/download_report/${scanId}`;
         console.log(`Download URL: ${downloadUrl}`);
         
-        // Try using fetch first to check if the endpoint responds correctly
+        // Create a temporary link and click it to trigger download
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `security_report_${scanId}.pdf`;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        
+        // Add event listeners to handle success/failure
+        link.addEventListener('click', () => {
+            console.log('Download link clicked');
+            // Remove the link after a short delay
+            setTimeout(() => {
+                if (document.body.contains(link)) {
+                    document.body.removeChild(link);
+                }
+            }, 1000);
+        });
+        
+        // Test the endpoint first
         fetch(downloadUrl, { method: 'HEAD' })
             .then(response => {
                 console.log(`Download endpoint check: ${response.status}`);
                 if (response.ok) {
-                    // Endpoint is working, initiate download
-                    window.location.href = downloadUrl;
+                    console.log('Endpoint is working, triggering download...');
+                    link.click();
+                    this.resetDownloadButton();
                 } else {
-                    this.showError(`Download failed: Server returned ${response.status}`);
+                    console.error(`Server returned ${response.status}`);
+                    this.showError(`Download failed: Server returned ${response.status}. Check that the scan completed successfully.`);
+                    if (document.body.contains(link)) {
+                        document.body.removeChild(link);
+                    }
+                    this.resetDownloadButton();
                 }
             })
             .catch(error => {
                 console.error('Download check failed:', error);
                 // Still try the download as fallback
                 console.log('Attempting download despite check failure');
-                window.location.href = downloadUrl;
+                link.click();
+                this.resetDownloadButton();
             });
     }
     
@@ -392,6 +427,13 @@ class ScanManager {
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
             this.updateInterval = null;
+        }
+    }
+    
+    resetDownloadButton() {
+        if (this.downloadReportBtn) {
+            this.downloadReportBtn.disabled = false;
+            this.downloadReportBtn.innerHTML = '<i class="fas fa-download me-2"></i>Download PDF Report';
         }
     }
     

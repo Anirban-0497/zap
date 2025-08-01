@@ -238,12 +238,16 @@ def download_report(scan_id):
         file_size = os.path.getsize(pdf_path)
         logger.info(f"Sending PDF report: {pdf_path} ({file_size} bytes)")
         
-        return send_file(
-            pdf_path, 
-            as_attachment=True, 
-            download_name=f'security_report_{scan_id}.pdf',
-            mimetype='application/pdf'
-        )
+        try:
+            return send_file(
+                pdf_path, 
+                as_attachment=True, 
+                download_name=f'security_report_{scan_id}.pdf',
+                mimetype='application/pdf'
+            )
+        except Exception as send_error:
+            logger.error(f"Error sending file: {str(send_error)}")
+            return jsonify({'error': f'Error sending file: {str(send_error)}'}), 500
         
     except Exception as e:
         logger.error(f"Error generating report for scan {scan_id}: {str(e)}")
@@ -256,6 +260,35 @@ def scan_history():
     """Show scan history"""
     scans = models.ScanRecord.query.order_by(models.ScanRecord.started_at.desc()).limit(20).all()
     return render_template('scan_history.html', scans=scans)
+
+@app.route('/debug_scan_records')
+def debug_scan_records():
+    """Debug endpoint to check all scan records in the database"""
+    try:
+        all_scans = models.ScanRecord.query.order_by(models.ScanRecord.id.desc()).limit(10).all()
+        
+        debug_info = {
+            'total_scans': models.ScanRecord.query.count(),
+            'recent_scans': [],
+            'database_url': app.config.get('SQLALCHEMY_DATABASE_URI', 'Not configured'),
+            'current_scan_status': scan_status
+        }
+        
+        for scan in all_scans:
+            debug_info['recent_scans'].append({
+                'id': scan.id,
+                'target_url': scan.target_url,
+                'status': scan.status,
+                'vulnerability_count': scan.vulnerability_count,
+                'started_at': scan.started_at.isoformat() if scan.started_at else None,
+                'completed_at': scan.completed_at.isoformat() if scan.completed_at else None,
+                'has_results': scan.results_json is not None
+            })
+        
+        return jsonify(debug_info)
+        
+    except Exception as e:
+        return jsonify({'error': str(e), 'traceback': str(e.__class__.__name__)})
 
 @app.route('/debug_download')
 def debug_download():
@@ -428,13 +461,13 @@ def run_scan(target_url, scan_id, scan_types):
                 scan_record.vulnerability_count = len(results.get('alerts', []))
                 db.session.commit()
             
-            # Update final status
+            # Update final status - keep scan_id available for download
             scan_status.update({
                 'running': False,
                 'progress': 100,
                 'status': 'completed',
-                'results': results,
-                'scan_id': scan_id  # Keep scan_id so download button works
+                'scan_id': scan_id,  # Keep scan_id for download functionality
+                'results': results  # Keep results for immediate access
             })
             
             logger.info(f"Scan completed successfully for {target_url} with types: {scan_types}")

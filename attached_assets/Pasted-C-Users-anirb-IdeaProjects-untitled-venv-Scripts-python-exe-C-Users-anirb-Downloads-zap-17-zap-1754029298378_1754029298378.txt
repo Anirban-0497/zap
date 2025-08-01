@@ -1,0 +1,119 @@
+C:\Users\anirb\IdeaProjects\untitled\.venv\Scripts\python.exe "C:/Users/anirb/Downloads/zap (17)/zap/main.py"
+ * Serving Flask app 'app'
+ * Debug mode: on
+INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.0.204:8080
+INFO:werkzeug:Press CTRL+C to quit
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 187-244-454
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:47:57] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:47:57] "GET /static/css/custom.css HTTP/1.1" 200 -
+INFO:scanner:Starting ZAP daemon...
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:05] "POST /start_scan HTTP/1.1" 302 -
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:05] "GET /scan_progress HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:05] "GET /static/css/custom.css HTTP/1.1" 304 -
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:05] "GET /static/js/scanner.js HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:05] "GET /api/scan_status HTTP/1.1" 200 -
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET /JSON/core/view/version/?apikey=72cnks1ojc5359jc7e4g0pt650 HTTP/1.1" 200 20
+INFO:zap_manager:ZAP is already running on port 8080 - connecting to existing instance
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/core/view/version/ HTTP/1.1" 200 20
+INFO:scanner:ZAP is ready!
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/action/setOptionMaxDepth/?Integer=5 HTTP/1.1" 200 15
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/action/setOptionMaxChildren/?Integer=10 HTTP/1.1" 200 15
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/action/setOptionThreadCount/?Integer=5 HTTP/1.1" 200 15
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/action/setOptionThreadPerHost/?Integer=5 HTTP/1.1" 200 15
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/action/setOptionHostPerScan/?Integer=1 HTTP/1.1" 200 15
+INFO:scanner:ZAP configuration completed
+INFO:scanner:Starting spider scan for https://tsit.mjunction.in/tauc/security/getLogin
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/action/scan/?url=https%3A%2F%2Ftsit.mjunction.in%2Ftauc%2Fsecurity%2FgetLogin HTTP/1.1" 200 12
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/view/status/?scanId=0 HTTP/1.1" 200 14
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/view/status/?scanId=0 HTTP/1.1" 200 14
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:07] "GET /api/scan_status HTTP/1.1" 200 -
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/view/status/?scanId=0 HTTP/1.1" 200 15
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/view/status/?scanId=0 HTTP/1.1" 200 15
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:09] "GET /api/scan_status HTTP/1.1" 200 -
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/view/status/?scanId=0 HTTP/1.1" 200 15
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/view/status/?scanId=0 HTTP/1.1" 200 15
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:11] "GET /api/scan_status HTTP/1.1" 200 -
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/view/status/?scanId=0 HTTP/1.1" 200 16
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/view/results/?scanId=0 HTTP/1.1" 200 4976
+INFO:scanner:Spider scan completed. Found 55 URLs
+INFO:auth_manager:Found 2 login forms
+INFO:scanner:Detected 2 login forms
+INFO:scanner:Starting active scan for https://tsit.mjunction.in/tauc/security/getLogin
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/action/scan/?url=https%3A%2F%2Ftsit.mjunction.in%2Ftauc%2Fsecurity%2FgetLogin HTTP/1.1" 200 12
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/view/status/?scanId=0 HTTP/1.1" 200 14
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:13] "GET /api/scan_status HTTP/1.1" 200 -
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/view/status/?scanId=0 HTTP/1.1" 200 15
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:15] "GET /api/scan_status HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:17] "GET /api/scan_status HTTP/1.1" 200 -
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/view/status/?scanId=0 HTTP/1.1" 200 15
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:19] "GET /api/scan_status HTTP/1.1" 200 -
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/view/status/?scanId=0 HTTP/1.1" 200 15
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:21] "GET /api/scan_status HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:23] "GET /api/scan_status HTTP/1.1" 200 -
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/view/status/?scanId=0 HTTP/1.1" 200 15
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:25] "GET /api/scan_status HTTP/1.1" 200 -
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/view/status/?scanId=0 HTTP/1.1" 200 15
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:27] "GET /api/scan_status HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:29] "GET /api/scan_status HTTP/1.1" 200 -
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/view/status/?scanId=0 HTTP/1.1" 200 16
+INFO:scanner:Active scan completed
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/core/view/alerts/ HTTP/1.1" 200 236971
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/core/view/urls/ HTTP/1.1" 200 7274
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/core/view/sites/ HTTP/1.1" 200 39
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/core/view/sites/ HTTP/1.1" 200 39
+INFO:scanner:Scan results compiled: 104 alerts found
+INFO:vulnerability_detector:Starting comprehensive vulnerability scan for https://tsit.mjunction.in/tauc/security/getLogin (scanning 5 URLs)
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): tsit.mjunction.in:443
+DEBUG:urllib3.connectionpool:https://tsit.mjunction.in:443 "GET /tauc/security/getLogin HTTP/1.1" 200 None
+INFO:vulnerability_detector:Vulnerability scan completed. Found 89 issues
+INFO:app:Comprehensive vulnerability detection completed: 89 vulnerabilities found
+INFO:app:Scan completed successfully for https://tsit.mjunction.in/tauc/security/getLogin with types: ['spider', 'active']
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/view/scans/ HTTP/1.1" 200 113
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/view/scans/ HTTP/1.1" 200 113
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/ascan/action/stop/?scanId=0 HTTP/1.1" 200 15
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/view/scans/ HTTP/1.1" 200 58
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/view/scans/ HTTP/1.1" 200 58
+DEBUG:urllib3.connectionpool:Starting new HTTP connection (1): 127.0.0.1:8080
+DEBUG:urllib3.connectionpool:http://127.0.0.1:8080 "GET http://zap/JSON/spider/action/stop/?scanId=0 HTTP/1.1" 200 15
+INFO:scanner:All scans stopped
+INFO:werkzeug:192.168.0.204 - - [01/Aug/2025 11:48:31] "GET /api/scan_status HTTP/1.1" 200 -
+INFO:zap_manager:Killed ZAP process 11056
+INFO:zap_manager:Killed ZAP process 11632

@@ -4,7 +4,18 @@
 
 This is a Flask-based web application that provides a user-friendly interface for conducting automated security scans using OWASP ZAP (Zed Attack Proxy). The application allows users to scan web applications for security vulnerabilities and generates comprehensive PDF reports of the findings.
 
-## Recent Changes (July 31, 2025)
+## Recent Changes (August 1, 2025)
+
+- **Migration to Replit Environment Completed**: Successfully migrated ZAP Security Scanner from Replit Agent to standard Replit environment
+- **Session Secret Fix**: Resolved RuntimeError with session secret key that was preventing application startup
+- **Download Functionality Fixed**: Enhanced PDF download with better error handling, improved JavaScript, and preserved scan_id tracking
+- **Database Migration**: Switched from SQLite to PostgreSQL for Replit compatibility while maintaining local SQLite support
+- **Port Configuration**: Updated to use port 5000 for Flask app (gunicorn) while ZAP continues on port 8080
+- **Enhanced Debugging**: Added comprehensive debug endpoints (`/debug_scan_records`, `/debug_download`) for troubleshooting
+- **JavaScript Improvements**: Fixed download button state management and added better error reporting
+- **Local Environment Support**: Maintained compatibility for local development with `main.py` running on port 8080
+
+## Previous Changes (July 31, 2025)
 
 - **Migration Completed**: Successfully migrated from Replit Agent to standard Replit environment with full functionality preserved
 - **ZAP Integration**: Confirmed application connects to local ZAP instance on port 8080 as designed
